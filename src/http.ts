@@ -12,7 +12,7 @@ import {
   HttpResponseInterface,
   HttpResponseMaterial,
   RequestHandlerType,
-} from './server.types';
+} from './http.types';
 import { Server } from 'https';
 
 export class HttpServer implements HttpServerInterface {

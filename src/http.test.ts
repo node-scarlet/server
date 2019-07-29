@@ -1,6 +1,6 @@
 import { strict as assert } from 'assert';
 const { URLSearchParams } = require('url');
-import { HttpServer, HttpResponse } from './server'
+import { HttpServer, HttpResponse } from './http'
 import * as fetch from 'node-fetch';
 
 export const tests = [

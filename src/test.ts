@@ -25,7 +25,7 @@ async function runWithTimer(fn) {
 
 async function testSuite() {
   const allTests = [
-    ...require('./server.test').tests,
+    ...require('./http.test').tests,
   ];
   for (const test of allTests) {
     const result = await runWithTimer(test);
