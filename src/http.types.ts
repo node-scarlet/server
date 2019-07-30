@@ -27,7 +27,7 @@ export interface HttpRequestInterface {
   body: string; // Eventually allow streamable object
   // Not sure if these will be included yet
   segments? : object;
-  querystring?: object;
+  query: object;
 }
 
 export interface HttpResponseInterface {

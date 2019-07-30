@@ -10,7 +10,9 @@ export const tests = [
   illegalRouteMethodsTest,
   responseConstructorTest,
   requestBodyParserURLencodedTest,
-  requestBodyParserJSON,
+  requestBodyParserJsonTest,
+  requestUrlTest,
+  requestQueryTest,
 ];
 
 async function portZeroTest() {
@@ -171,7 +173,7 @@ async function requestBodyParserURLencodedTest() {
   }
 }
 
-async function requestBodyParserJSON() {
+async function requestBodyParserJsonTest() {
   const description = `JSON encoded body content
   will be parsed into an object`;
 
@@ -201,6 +203,47 @@ async function requestBodyParserJSON() {
 
     await requests.close();
 
+  } catch (e) {
+    return e;
+  }
+}
+
+async function requestUrlTest() {
+  const description = `Requests should have
+  a url property`;
+
+  try {
+    const requests = new HttpServer({ port: 0 });
+    requests.route('GET', '/', (req, meta) => {
+      assert.equal(
+        req.url,
+        '/?idea=special'
+      );
+    })
+    await requests.listen();
+    const response = await fetch(`http://0.0.0.0:${requests.port()}/?idea=special`);
+    await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
+
+async function requestQueryTest() {
+  const description = `Requests should have
+  a query property`;
+
+  try {
+    const requests = new HttpServer({ port: 0 });
+    requests.route('GET', '/a', (req, meta) => {
+      // query is a null-prototype object, so deepEqual doesn't work as one might expect
+      assert.equal(
+        JSON.stringify(req.query),
+        JSON.stringify({ friend: 'good' })
+      );
+    })
+    await requests.listen();
+    const response = await fetch(`http://0.0.0.0:${requests.port()}/a?friend=good`);
+    await requests.close();
   } catch (e) {
     return e;
   }

@@ -3,6 +3,7 @@ import * as bodyParser from 'koa-bodyparser';
 import * as KoaRouter from 'koa-router';
 import * as cors from '@koa/cors';
 import { AddressInfo } from 'net'; 
+import * as qs from 'querystring';
 
 import {
   HttpServerInterface,
@@ -87,13 +88,20 @@ function adaptRequest(ctx): HttpRequestInterface {
     headers, 
   } = ctx;
 
-  const { body }  = ctx.request;
+  const { body, query }  = ctx.request;
+
+  // Strangely, query is preceded by "[Object: null prototype]" when left untouched
+  // JSON encode/decode fixes this
+  // let { query } = ctx.request;
+  // query = JSON.stringify(query);
+  // query = JSON.parse(query);
 
   return Object.freeze({
     method,
     url,
     headers,
     body,
+    query,
   });
 }
 
