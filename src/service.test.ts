@@ -1,6 +1,6 @@
 import { strict as assert } from 'assert';
 const { URLSearchParams } = require('url');
-import { httpService, GET } from './prototype'
+import { service, GET } from './service'
 import * as fetch from 'node-fetch';
 
 export const tests = [
@@ -15,7 +15,7 @@ async function serverConstructTest() {
   be instantiated`;
 
   try {
-    assert.doesNotThrow(() => httpService());
+    assert.doesNotThrow(() => service());
   } catch (e) {
     return e;
   }
@@ -26,7 +26,7 @@ async function serverStartStopTest() {
   start and stop methods`;
 
   try {
-    const handle = httpService();
+    const handle = service();
 
     assert.doesNotThrow(async function() {
       await handle.start();
@@ -41,7 +41,7 @@ async function serverMiddlewareTest() {
   const description = `Middleware can be applied using with()`;
 
   try {
-    const handle = httpService();
+    const handle = service();
     assert.doesNotThrow(function() {
       handle(GET)('/').with(function(req, meta) {});
     })
@@ -56,11 +56,11 @@ async function serviceRequestableTest() {
 
   try {
     // Start up an http server
-    const handle = httpService(6000);
-    handle(GET)('/').with(function(req, meta) {
+    const handle = service();
+    handle(GET).with(function(req, meta) {
       meta.desire = req.query.emotion || 'love'
     })
-    handle(GET)('/').with(function(req, meta) {
+    handle(GET)('/pig').with(function(req, meta) {
       return {
         status: 200,
         headers: {},
@@ -70,7 +70,7 @@ async function serviceRequestableTest() {
     await handle.start();
     
     // Make A request to the server defined above
-    const res = await fetch(`http://0.0.0.0:${6000}?emotion=vengeance`);
+    const res = await fetch(`http://0.0.0.0:${handle.port()}/pig?emotion=vengeance`);
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'Wilber didn\'t want food. He wanted vengeance');
     await handle.stop();

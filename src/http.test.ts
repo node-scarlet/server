@@ -20,7 +20,7 @@ async function portZeroTest() {
   guarantee an available port`;
 
   try {
-    const requests = new HttpServer({ port: 0 });
+    const requests = new HttpServer();
     await requests.listen();
     assert(requests.port());
     await requests.close();
@@ -38,7 +38,7 @@ async function defaultHeadersTest() {
 
   try {
     // Start up an http server
-    const requests = new HttpServer({ port: 0 });
+    const requests = new HttpServer();
     requests.route('GET', '/', (req, meta) => {
       return {
         status: 200,
@@ -71,7 +71,7 @@ async function handlerMetaTest() {
 
   try {
     // Start up an http server
-    const requests = new HttpServer({ port: 0 });
+    const requests = new HttpServer();
     requests.route('GET', '/', (req, meta) => {
       meta.desire = 'love';
     })
@@ -102,7 +102,7 @@ async function illegalRouteMethodsTest() {
 
   try {
     const registerIllegalRoute = () => {
-      const requests = new HttpServer({ port: 0 });
+      const requests = new HttpServer();
       requests.route('SAVE', '/', (req, meta) => {
         return new HttpResponse();
       })
@@ -124,7 +124,7 @@ async function responseConstructorTest() {
 
   try {
     // Start up an http server
-    const requests = new HttpServer({ port: 0 });
+    const requests = new HttpServer();
     requests.route('GET', '/', (req, meta) => {
       return new HttpResponse();
     })
@@ -142,7 +142,7 @@ async function requestBodyParserURLencodedTest() {
   will be parsed into an object`;
 
   try {
-    const requests = new HttpServer({ port: 0 });
+    const requests = new HttpServer();
     requests.route('POST', '/', (req, meta) => {
 
       assert.equal(

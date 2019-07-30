@@ -4,7 +4,7 @@
 
 export interface HttpServerInterface {
   route: (method, path, handler:RequestHandlerType) => void;
-  listen: () => void;
+  listen: (port) => void;
   close: () => void;
 }
 
@@ -12,9 +12,7 @@ export interface HttpServerConstructorInterface {
   new (options: object): HttpServerInterface;
 }
 
-export interface HttpServerOptionsInterface {
-  port: number;
-}
+export interface HttpServerOptionsInterface {}
 
 export interface HttpHeadersInterface {
   [name: string]: string;

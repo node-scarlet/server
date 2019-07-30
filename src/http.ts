@@ -20,7 +20,7 @@ export class HttpServer implements HttpServerInterface {
   private router: any;
   private service: Server;
 
-  constructor(options: HttpServerOptionsInterface) {
+  constructor(options?: HttpServerOptionsInterface) {
     this.options = options;
     this.router = new KoaRouter();
   }
@@ -48,8 +48,7 @@ export class HttpServer implements HttpServerInterface {
     })
   }
 
-  async listen() {
-    const { port } = this.options;
+  async listen(port=0) {
     const app = new Koa();
 
     // Required Middleware
