@@ -230,19 +230,34 @@ async function requestUrlTest() {
 
 async function requestQueryTest() {
   const description = `Requests should have
-  a query property`;
+  a query property that represents querystring
+  parameters`;
 
   try {
     const requests = new HttpServer({ port: 0 });
-    requests.route('GET', '/a', (req, meta) => {
+    requests.route('GET', '/thinking', (req, meta) => {
       // query is a null-prototype object, so deepEqual doesn't work as one might expect
       assert.equal(
         JSON.stringify(req.query),
-        JSON.stringify({ friend: 'good' })
+        JSON.stringify({ splish: 'splash' })
+      );
+    })
+    requests.route('GET', '/everything/was', (req, meta) => {
+      assert.equal(
+        JSON.stringify(req.query),
+        JSON.stringify({ i: 'was', taking: 'a bath'})
+      );
+    })
+    requests.route('GET', '/alright', (req, meta) => {
+      assert.equal(
+        JSON.stringify(req.query),
+        JSON.stringify({ long: 'about', 'a saturday': 'night' })
       );
     })
     await requests.listen();
-    const response = await fetch(`http://0.0.0.0:${requests.port()}/a?friend=good`);
+    await fetch(`http://0.0.0.0:${requests.port()}/thinking?splish=splash`);
+    await fetch(`http://0.0.0.0:${requests.port()}/everything/was?i=was&taking=a%20bath`);
+    await fetch(`http://0.0.0.0:${requests.port()}/alright?long=about&a%20saturday=night`);
     await requests.close();
   } catch (e) {
     return e;

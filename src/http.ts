@@ -90,12 +90,6 @@ function adaptRequest(ctx): HttpRequestInterface {
 
   const { body, query }  = ctx.request;
 
-  // Strangely, query is preceded by "[Object: null prototype]" when left untouched
-  // JSON encode/decode fixes this
-  // let { query } = ctx.request;
-  // query = JSON.stringify(query);
-  // query = JSON.parse(query);
-
   return Object.freeze({
     method,
     url,
