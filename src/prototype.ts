@@ -1,30 +1,24 @@
-import { createServer } from 'http';
+import { HttpServer } from './http';
 
-// const handle = new Server();
-// handle(['GET', 'PUT'], '/').with(function(req, meta) {
-//   meta.desire = req.query.emotion || 'love';
-// })
+export function httpService(port=0) {
+  const requests = new HttpServer({ port });
 
-// handle('GET', '/').with(function(req, meta) {
-//   return 'Wilber didn\'t want food. He wanted ' + meta.desire;
-// })
-
-export class Server {
-  middleware: [];
-
-  constructor() {
-    this.middleware = [];
-  }
-
-  applyMiddleware(req, res) {
-    console.log('new middleware');
-  }
-
-  listen(port) {
-    createServer(function(req, res) {
-      for (const fn of this.middleware) {
-        this.applyMiddleware(req, res, fn);
+  function handle(methods, urlpatttern) {
+    return {
+      with: function(fn) {
+        if (Array.isArray(methods)) {
+          methods.forEach(m => requests.route(m, urlpatttern, fn));
+        } else if (typeof methods == 'string') {
+          requests.route(methods, urlpatttern, fn)
+        }
       }
-    }).listen(port);
+    }
   }
+  handle.start = async function() {
+    await requests.listen();
+  }
+  handle.stop = async function() {
+    await requests.close();
+  }
+  return handle;
 }

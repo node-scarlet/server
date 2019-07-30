@@ -3,7 +3,6 @@ import * as bodyParser from 'koa-bodyparser';
 import * as KoaRouter from 'koa-router';
 import * as cors from '@koa/cors';
 import { AddressInfo } from 'net'; 
-import * as qs from 'querystring';
 
 import {
   HttpServerInterface,

@@ -27,6 +27,7 @@
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
     "koa-router": "^7.4.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.5.3",
+    "url-pattern": "^1.0.3"
   }
 }
