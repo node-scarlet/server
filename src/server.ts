@@ -98,6 +98,21 @@ function adaptRequest(ctx): HttpRequestInterface {
 }
 
 function adaptResponse(response: HttpResponseInterface, ctx) {
+  if (typeof response == 'string') {
+    response = new Response({
+      status: 200,
+      headers: { 'content-type': 'text/html' },
+      body: response
+    })
+  }
+  else if (response instanceof Response == false && typeof response == 'object') {
+    response = new Response({
+      status: 200,
+      headers: { 'content-type': 'text/html' },
+      body: JSON.stringify(response)
+    })
+  }
+
   // Status Code
   ctx.response.status = response.status;
   // Headers

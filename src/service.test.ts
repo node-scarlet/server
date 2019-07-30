@@ -60,11 +60,7 @@ async function serviceRequestableTest() {
       meta.desire = req.query.emotion || 'love'
     })
     handle(GET)('/pig').with(function(req, meta) {
-      return {
-        status: 200,
-        headers: {},
-        body: 'Wilber didn\'t want food. He wanted ' + meta.desire,
-      }
+      return 'Wilber didn\'t want food. He wanted ' + meta.desire
     })
     await handle.start();
     
