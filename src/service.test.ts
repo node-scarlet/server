@@ -1,5 +1,4 @@
 import { strict as assert } from 'assert';
-const { URLSearchParams } = require('url');
 import { service, GET } from './service'
 import * as fetch from 'node-fetch';
 

@@ -1,6 +1,6 @@
 import { strict as assert } from 'assert';
 const { URLSearchParams } = require('url');
-import { HttpServer, HttpResponse } from './http'
+import { Server, Response } from './server'
 import * as fetch from 'node-fetch';
 
 export const tests = [
@@ -20,7 +20,7 @@ async function portZeroTest() {
   guarantee an available port`;
 
   try {
-    const requests = new HttpServer();
+    const requests = new Server();
     await requests.listen();
     assert(requests.port());
     await requests.close();
@@ -38,7 +38,7 @@ async function defaultHeadersTest() {
 
   try {
     // Start up an http server
-    const requests = new HttpServer();
+    const requests = new Server();
     requests.route('GET', '/', (req, meta) => {
       return {
         status: 200,
@@ -71,7 +71,7 @@ async function handlerMetaTest() {
 
   try {
     // Start up an http server
-    const requests = new HttpServer();
+    const requests = new Server();
     requests.route('GET', '/', (req, meta) => {
       meta.desire = 'love';
     })
@@ -102,9 +102,9 @@ async function illegalRouteMethodsTest() {
 
   try {
     const registerIllegalRoute = () => {
-      const requests = new HttpServer();
+      const requests = new Server();
       requests.route('SAVE', '/', (req, meta) => {
-        return new HttpResponse();
+        return new Response();
       })
     }
 
@@ -118,15 +118,15 @@ async function illegalRouteMethodsTest() {
 }
 
 async function responseConstructorTest() {
-  const description = `The HttpResponse constructor
+  const description = `The Response constructor
   can be used to validate return material, and allows
   passing only some of the required properties`;
 
   try {
     // Start up an http server
-    const requests = new HttpServer();
+    const requests = new Server();
     requests.route('GET', '/', (req, meta) => {
-      return new HttpResponse();
+      return new Response();
     })
 
     await requests.listen();
@@ -142,7 +142,7 @@ async function requestBodyParserURLencodedTest() {
   will be parsed into an object`;
 
   try {
-    const requests = new HttpServer();
+    const requests = new Server();
     requests.route('POST', '/', (req, meta) => {
 
       assert.equal(
@@ -178,7 +178,7 @@ async function requestBodyParserJsonTest() {
   will be parsed into an object`;
 
   try {
-    const requests = new HttpServer({ port: 0 });
+    const requests = new Server({ port: 0 });
     requests.route('POST', '/', (req, meta) => {
 
       assert.equal(
@@ -213,7 +213,7 @@ async function requestUrlTest() {
   a url property`;
 
   try {
-    const requests = new HttpServer({ port: 0 });
+    const requests = new Server({ port: 0 });
     requests.route('GET', '/', (req, meta) => {
       assert.equal(
         req.url,
@@ -234,7 +234,7 @@ async function requestQueryTest() {
   parameters`;
 
   try {
-    const requests = new HttpServer({ port: 0 });
+    const requests = new Server({ port: 0 });
     requests.route('GET', '/thinking', (req, meta) => {
       // query is a null-prototype object, so deepEqual doesn't work as one might expect
       assert.equal(

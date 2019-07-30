@@ -13,12 +13,12 @@ import {
   HttpResponseMaterial,
   RequestHandlerType,
 } from './http.types';
-import { Server } from 'https';
+import { Server as StandardServer } from 'https';
 
-export class HttpServer implements HttpServerInterface {
+export class Server implements HttpServerInterface {
   options: HttpServerOptionsInterface;
   private router: any;
-  private service: Server;
+  private service: StandardServer;
 
   constructor(options?: HttpServerOptionsInterface) {
     this.options = options;
@@ -67,7 +67,7 @@ export class HttpServer implements HttpServerInterface {
   }
 }
 
-export class HttpResponse implements HttpResponseInterface {
+export class Response implements HttpResponseInterface {
   status: number;
   headers: HttpHeadersInterface;
   body: string;

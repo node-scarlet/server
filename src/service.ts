@@ -1,4 +1,4 @@
-import { HttpServer } from './http';
+import { Server } from './server';
 
 export const GET = 'GET';
 export const PUT = 'PUT';
@@ -6,7 +6,7 @@ export const POST = 'POST';
 export const DELETE = 'DELETE';
 
 export function service() {
-  const requests = new HttpServer();
+  const requests = new Server();
 
   function handle(...methods) {
     function methodsOnly(urlpattern) {
