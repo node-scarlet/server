@@ -1,12 +1,15 @@
 import { strict as assert } from 'assert';
-import { service, GET } from './service'
+import { server } from './wrapper'
+import { methods } from './http';
 import * as fetch from 'node-fetch';
+
+const { GET } = methods;
 
 export const tests = [
   serverConstructTest,
   serverStartStopTest,
   serverMiddlewareTest,
-  serviceRequestableTest,
+  serverRequestableTest,
 ];
 
 async function serverConstructTest() {
@@ -14,7 +17,7 @@ async function serverConstructTest() {
   be instantiated`;
 
   try {
-    assert.doesNotThrow(() => service());
+    assert.doesNotThrow(() => server());
   } catch (e) {
     return e;
   }
@@ -25,11 +28,11 @@ async function serverStartStopTest() {
   start and stop methods`;
 
   try {
-    const handle = service();
+    const route = server();
 
     assert.doesNotThrow(async function() {
-      await handle.start();
-      await handle.stop();
+      await route.start();
+      await route.stop();
     })
   } catch (e) {
     return e;
@@ -37,38 +40,38 @@ async function serverStartStopTest() {
 }
 
 async function serverMiddlewareTest() {
-  const description = `Middleware can be applied using with()`;
+  const description = `Middleware can be applied using to()`;
 
   try {
-    const handle = service();
+    const route = server();
     assert.doesNotThrow(function() {
-      handle(GET)('/').with(function(req, meta) {});
+      route(GET)('/').to(function(req, meta) {});
     })
   } catch (e) {
     return e;
   }
 }
 
-async function serviceRequestableTest() {
+async function serverRequestableTest() {
   const description = `Middleware should be applied
   as expected`;
 
   try {
     // Start up an http server
-    const handle = service();
-    handle(GET).with(function(req, meta) {
+    const route = server();
+    route(GET).to(function(req, meta) {
       meta.desire = req.query.emotion || 'love'
     })
-    handle(GET)('/pig').with(function(req, meta) {
+    route(GET)('/pig').to(function(req, meta) {
       return 'Wilber didn\'t want food. He wanted ' + meta.desire
     })
-    await handle.start();
+    await route.start();
     
     // Make A request to the server defined above
-    const res = await fetch(`http://0.0.0.0:${handle.port()}/pig?emotion=vengeance`);
+    const res = await fetch(`http://0.0.0.0:${route.port()}/pig?emotion=vengeance`);
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'Wilber didn\'t want food. He wanted vengeance');
-    await handle.stop();
+    await route.stop();
   }
 
   catch (e) {

@@ -20,7 +20,8 @@
   "homepage": "https://github.com/node-scarlet/http#readme",
   "devDependencies": {
     "@types/node": "^12.6.8",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "nodemon": "^1.19.1"
   },
   "dependencies": {
     "@koa/cors": "^3.0.0",

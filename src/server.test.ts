@@ -40,16 +40,18 @@ async function defaultHeadersTest() {
     // Start up an http server
     const requests = new Server();
     requests.route('GET', '/', (req, meta) => {
-      return {
+      return new Response({
         status: 200,
         headers: {},
         body: ''
-      }
+      })
     })
     await requests.listen();
     
     // Make A request to the server defined above
+    let body = ''
     const res = await fetch(`http://0.0.0.0:${requests.port()}`);
+    console.log(await res.text());
     assert.equal(res.status, 200);
     const { length } = Object.keys(res.headers.raw());
     assert.equal(length, 5);
@@ -76,11 +78,11 @@ async function handlerMetaTest() {
       meta.desire = 'love';
     })
     requests.route('GET', '/', (req, meta) => {
-      return {
+      return new Response({
         status: 200,
         headers: {},
         body: 'Wilber didn\'t want food. He wanted ' + meta.desire,
-      }
+      })
     })
     await requests.listen();
     

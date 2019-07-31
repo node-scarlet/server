@@ -15,6 +15,14 @@ import {
 } from './http.types';
 import { Server as StandardServer } from 'https';
 
+export function server(...args) {
+  return new Server(...args);
+}
+
+export function response(...args) {
+  return new Response(...args);
+}
+
 export class Server implements HttpServerInterface {
   options: HttpServerOptionsInterface;
   private router: any;
@@ -83,6 +91,7 @@ function adaptRequest(ctx): HttpRequestInterface {
   const {
     method,
     url,
+    params,
     headers, 
   } = ctx;
 
@@ -94,6 +103,7 @@ function adaptRequest(ctx): HttpRequestInterface {
     headers,
     body,
     query,
+    params,
   });
 }
 
@@ -108,7 +118,7 @@ function adaptResponse(response: HttpResponseInterface, ctx) {
   else if (response instanceof Response == false && typeof response == 'object') {
     response = new Response({
       status: 200,
-      headers: { 'content-type': 'text/html' },
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify(response)
     })
   }
