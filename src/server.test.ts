@@ -272,30 +272,30 @@ async function requestRedirectTest() {
   using a response constructor`;
 
   try {
-    const requests = new Server();
-    const other = new Server();
+    const first = new Server();
+    const second = new Server();
 
-    requests.route('GET', '/', (req, meta) => {
-      const location = `http://0.0.0.0:${other.port()}`;
+    first.route('GET', '/', (req, meta) => {
+      const location = `http://0.0.0.0:${second.port()}`;
       return new Response({
         status: 307,
         headers: { location }
       })
     })
 
-    other.route('GET', '/', (req, meta) => 'Success!')
+    second.route('GET', '/', (req, meta) => 'Success!')
 
-    await requests.listen();
-    await other.listen();
+    await first.listen();
+    await second.listen();
 
-    const response = await fetch(`http://0.0.0.0:${requests.port()}`);
+    const response = await fetch(`http://0.0.0.0:${first.port()}`);
     assert.equal(
       await response.text(),
       'Success!'
     );
 
-    await requests.close();
-    await other.close();
+    await first.close();
+    await second.close();
   } catch (e) {
     return e;
   }
