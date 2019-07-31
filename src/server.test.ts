@@ -13,6 +13,7 @@ export const tests = [
   requestBodyParserJsonTest,
   requestUrlTest,
   requestQueryTest,
+  requestRedirectTest,
 ];
 
 async function portZeroTest() {
@@ -180,7 +181,7 @@ async function requestBodyParserJsonTest() {
   will be parsed into an object`;
 
   try {
-    const requests = new Server({ port: 0 });
+    const requests = new Server();
     requests.route('POST', '/', (req, meta) => {
 
       assert.equal(
@@ -215,7 +216,7 @@ async function requestUrlTest() {
   a url property`;
 
   try {
-    const requests = new Server({ port: 0 });
+    const requests = new Server();
     requests.route('GET', '/', (req, meta) => {
       assert.equal(
         req.url,
@@ -236,7 +237,7 @@ async function requestQueryTest() {
   parameters`;
 
   try {
-    const requests = new Server({ port: 0 });
+    const requests = new Server();
     requests.route('GET', '/thinking', (req, meta) => {
       // query is a null-prototype object, so deepEqual doesn't work as one might expect
       assert.equal(
@@ -261,6 +262,40 @@ async function requestQueryTest() {
     await fetch(`http://0.0.0.0:${requests.port()}/everything/was?i=was&taking=a%20bath`);
     await fetch(`http://0.0.0.0:${requests.port()}/alright?long=about&a%20saturday=night`);
     await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
+
+async function requestRedirectTest() {
+  const description = `Redirects should be possible
+  using a response constructor`;
+
+  try {
+    const requests = new Server();
+    const other = new Server();
+
+    requests.route('GET', '/', (req, meta) => {
+      const location = `http://0.0.0.0:${other.port()}`;
+      return new Response({
+        status: 307,
+        headers: { location }
+      })
+    })
+
+    other.route('GET', '/', (req, meta) => 'Success!')
+
+    await requests.listen();
+    await other.listen();
+
+    const response = await fetch(`http://0.0.0.0:${requests.port()}`);
+    assert.equal(
+      await response.text(),
+      'Success!'
+    );
+
+    await requests.close();
+    await other.close();
   } catch (e) {
     return e;
   }

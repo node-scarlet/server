@@ -90,24 +90,24 @@ export class Response implements HttpResponseInterface {
 function adaptRequest(ctx): HttpRequestInterface {
   const {
     method,
+    headers, 
     url,
     params,
-    headers, 
   } = ctx;
 
   const { body, query }  = ctx.request;
 
   return Object.freeze({
     method,
-    url,
     headers,
+    url,
+    params,
     body,
     query,
-    params,
   });
 }
 
-function adaptResponse(response: HttpResponseInterface, ctx) {
+function adaptResponse(response, ctx) {
   if (typeof response == 'string') {
     response = new Response({
       status: 200,

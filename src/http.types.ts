@@ -43,5 +43,5 @@ export interface HttpResponseMaterial {
 export type RequestHandlerType = (
   request: HttpRequestInterface,
   meta: { [key: string]: any; },
-) => HttpResponseInterface | void;
+) => any;
 
