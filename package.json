@@ -1,23 +1,20 @@
 {
-  "name": "http",
+  "name": "warpserver",
   "version": "0.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Intuitive webserver built for rapid development",
+  "main": "dist/warpserver.js",
   "scripts": {
+    "prepublish": "npm run build",
     "build": "npx tsc",
     "test": "npm run build && node dist/test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/node-scarlet/http.git"
+    "url": "git+https://github.com/node-warp/warpserver.git"
   },
   "keywords": [],
   "author": "craig fay",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/node-scarlet/http/issues"
-  },
-  "homepage": "https://github.com/node-scarlet/http#readme",
   "devDependencies": {
     "@types/node": "^12.6.8",
     "node-fetch": "^2.6.0",
@@ -28,7 +25,6 @@
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
     "koa-router": "^7.4.0",
-    "typescript": "^3.5.3",
-    "url-pattern": "^1.0.3"
+    "typescript": "^3.5.3"
   }
 }
