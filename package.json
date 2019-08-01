@@ -1,8 +1,8 @@
 {
-  "name": "warpserver",
+  "name": "http",
   "version": "0.0.0",
   "description": "Intuitive webserver built for rapid development",
-  "main": "dist/warpserver.js",
+  "main": "dist/http.js",
   "scripts": {
     "prepublish": "npm run build",
     "build": "npx tsc",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/node-warp/warpserver.git"
+    "url": "git+https://github.com/node-scarlet/http.git"
   },
   "keywords": [],
   "author": "craig fay",

@@ -2,7 +2,7 @@
 This module provides an intuitive interface for creating http servers with Node.
 
 ```JS
-const http = require('./main');
+const http = require('@node-scarlet/http');
 const { GET, POST } = http.methods;
 ```
 
@@ -23,17 +23,17 @@ const denyAccess = (req, meta) => {
 } 
 ```
 
-Use the `meta` argument to store arbitary data that can be used by future handlers:
+Use the `meta` argument to store arbitary data that can be used by other handlers:
 
 If a handler doesn't return a response, the request will continue flowing to downstream handlers.
 
 ```JS
 
-// Attach properties to meta for later use
 const attachMeta = (req, meta) => {
   meta.desire = req.query.emotion || 'love';
 })
 
+// Utilize the meta value set by attachMeta()
 const emote = (req, meta) => {
   return http.response({
     status: 200,
@@ -53,4 +53,3 @@ requests.route(GET, '/*', attachMeta);
 requests.route(GET, '/*', emote);
 requests.listen(5000);
 ```
-
