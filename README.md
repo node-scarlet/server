@@ -1,9 +1,17 @@
 # About
 This module provides an intuitive interface for creating http servers with Node.
 
+## Getting Started
+The (almost) simplest possible example:
+
 ```JS
 const http = require('@node-scarlet/http');
-const { GET, POST } = http.methods;
+const { GET } = http.methods;
+
+const requests = http.server();
+requests.route(GET, '/*', (req, meta) => 'Hello, World!');
+requests.listen(process.env.PORT);
+
 ```
 
 Request handler functions use `req` and `meta` to determine how to react to incoming requests. Return a `string`, `object`, or `http.response()` to respond:
@@ -17,15 +25,13 @@ const getJson = (req, meta) => { message: 'anybody listening?' };
 const denyAccess = (req, meta) => {
   return http.response({
     status: 403,
-    headers: {},
-    body: 'Access Denied'
+    headers: { 'content-type', 'text/html' },
+    body: '<h1>Access Denied</h1>'
   })
 } 
 ```
 
-Use the `meta` argument to store arbitary data that can be used by other handlers:
-
-If a handler doesn't return a response, the request will continue flowing to downstream handlers.
+Use the `meta` argument to store arbitary data that can be used by other handlers. If a handler doesn't return a response, the request will continue flowing to downstream handlers.
 
 ```JS
 

@@ -1,5 +1,5 @@
 {
-  "name": "http",
+  "name": "@node-scarlet/http",
   "version": "0.0.0",
   "description": "Intuitive webserver built for rapid development",
   "main": "dist/http.js",
