@@ -23,7 +23,7 @@ export function response(...args) {
   return new Response(...args);
 }
 
-export class Server implements HttpServerInterface {
+class Server implements HttpServerInterface {
   options: HttpServerOptionsInterface;
   private router: any;
   private service: StandardServer;
@@ -75,7 +75,7 @@ export class Server implements HttpServerInterface {
   }
 }
 
-export class Response implements HttpResponseInterface {
+class Response implements HttpResponseInterface {
   status: number;
   headers: HttpHeadersInterface;
   body: string;
