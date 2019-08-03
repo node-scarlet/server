@@ -311,6 +311,17 @@ async function defaultBodyTest() {
     requests.route('GET', '/100', () => response({ status: 100 }));
     requests.route('GET', '/101', () => response({ status: 101 }));
     requests.route('GET', '/102', () => response({ status: 102}));
+    // 2xx - Success
+    requests.route('GET', '/200', () => response({ status: 200}));
+    requests.route('GET', '/201', () => response({ status: 201}));
+    requests.route('GET', '/202', () => response({ status: 202}));
+    requests.route('GET', '/203', () => response({ status: 203}));
+    requests.route('GET', '/203', () => response({ status: 204}));
+    requests.route('GET', '/204', () => response({ status: 205}));
+    requests.route('GET', '/205', () => response({ status: 206}));
+    requests.route('GET', '/207', () => response({ status: 207}));
+    requests.route('GET', '/208', () => response({ status: 208}));
+    requests.route('GET', '/226', () => response({ status: 226}));
 
     await requests.listen();
     await fetch(`http://0.0.0.0:${requests.port()}/100`);
