@@ -1,7 +1,8 @@
 import { strict as assert } from 'assert';
 const { URLSearchParams } = require('url');
-import { Server, Response } from './server'
+import { Server, Response, response } from './server'
 import * as fetch from 'node-fetch';
+import { Http2SecureServer } from 'http2';
 
 export const tests = [
   portZeroTest,
@@ -60,7 +61,6 @@ async function defaultHeadersTest() {
     assert.equal(res.headers.get('vary'), 'Origin');
     assert.equal(res.headers.get('content-type'), 'text/plain; charset=utf-8');
     assert.equal(res.headers.get('connection'), 'close');
-    assert.equal(res.headers.get('content-length'), '0');
     await requests.close();
 
   } catch (e) {
@@ -296,6 +296,25 @@ async function requestRedirectTest() {
 
     await first.close();
     await second.close();
+  } catch (e) {
+    return e;
+  }
+}
+
+async function defaultBodyTest() {
+  const description = `If a response has a status but no
+  body, the status code message should be the body`;
+
+  try {
+    const requests = new Server();
+    // 1xx - Informational
+    requests.route('GET', '/100', () => response({ status: 100 }));
+    requests.route('GET', '/101', () => response({ status: 101 }));
+    requests.route('GET', '/102', () => response({ status: 102}));
+
+    await requests.listen();
+    await fetch(`http://0.0.0.0:${requests.port()}/100`);
+    await requests.close();
   } catch (e) {
     return e;
   }

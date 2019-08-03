@@ -130,5 +130,5 @@ function adaptResponse(response, ctx) {
     ctx.set(name, value);
   }
   // Body
-  ctx.response.body = response.body;
+  if (response.body) ctx.response.body = response.body;
 }
