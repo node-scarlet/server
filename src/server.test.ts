@@ -366,6 +366,10 @@ async function defaultBodyTest() {
     requests.route('GET', '/450', () => response({ status: 450 }));
     requests.route('GET', '/451', () => response({ status: 451 }));
     requests.route('GET', '/499', () => response({ status: 499 }));
+    // 5xx - Server Error
+    requests.route('GET', '/500', () => response({ status: 499 }));
+    requests.route('GET', '/501', () => response({ status: 499 }));
+    requests.route('GET', '/502', () => response({ status: 499 }));
 
     await requests.listen();
     await fetch(`http://0.0.0.0:${requests.port()}/100`);
