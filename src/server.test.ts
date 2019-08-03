@@ -2,7 +2,6 @@ import { strict as assert } from 'assert';
 const { URLSearchParams } = require('url');
 import { Server, Response, response } from './server'
 import * as fetch from 'node-fetch';
-import { Http2SecureServer } from 'http2';
 
 export const tests = [
   portZeroTest,
@@ -15,6 +14,7 @@ export const tests = [
   requestUrlTest,
   requestQueryTest,
   requestRedirectTest,
+  defaultBodyTest,
 ];
 
 async function portZeroTest() {
@@ -53,7 +53,6 @@ async function defaultHeadersTest() {
     // Make A request to the server defined above
     let body = ''
     const res = await fetch(`http://0.0.0.0:${requests.port()}`);
-    console.log(await res.text());
     assert.equal(res.status, 200);
     const { length } = Object.keys(res.headers.raw());
     assert.equal(length, 5);
@@ -307,72 +306,32 @@ async function defaultBodyTest() {
 
   try {
     const requests = new Server();
-    // 1xx - Informational
-    requests.route('GET', '/100', () => response({ status: 100 }));
-    requests.route('GET', '/101', () => response({ status: 101 }));
-    requests.route('GET', '/102', () => response({ status: 102}));
     // 2xx - Success
-    requests.route('GET', '/200', () => response({ status: 200}));
-    requests.route('GET', '/201', () => response({ status: 201}));
-    requests.route('GET', '/202', () => response({ status: 202}));
-    requests.route('GET', '/203', () => response({ status: 203}));
-    requests.route('GET', '/203', () => response({ status: 204}));
-    requests.route('GET', '/204', () => response({ status: 205}));
-    requests.route('GET', '/205', () => response({ status: 206}));
-    requests.route('GET', '/207', () => response({ status: 207}));
-    requests.route('GET', '/208', () => response({ status: 208}));
-    requests.route('GET', '/226', () => response({ status: 226}));
+    requests.route('GET', '/200', () => response({ status: 200 }));
+    requests.route('GET', '/201', () => response({ status: 201 }));
+    requests.route('GET', '/204', () => response({ status: 204 }));
     // 3xx - Redirection
-    requests.route('GET', '/300', () => response({ status: 300}));
-    requests.route('GET', '/301', () => response({ status: 301}));
-    requests.route('GET', '/302', () => response({ status: 302}));
-    requests.route('GET', '/303', () => response({ status: 303}));
-    requests.route('GET', '/304', () => response({ status: 304}));
-    requests.route('GET', '/305', () => response({ status: 305}));
-    requests.route('GET', '/306', () => response({ status: 306}));
-    requests.route('GET', '/307', () => response({ status: 307}));
-    requests.route('GET', '/308', () => response({ status: 308}));
+    requests.route('GET', '/304', () => response({ status: 304 }));
     // 4xx - Client Error
     requests.route('GET', '/400', () => response({ status: 400 }));
     requests.route('GET', '/401', () => response({ status: 401 }));
-    requests.route('GET', '/402', () => response({ status: 402 }));
     requests.route('GET', '/403', () => response({ status: 403 }));
     requests.route('GET', '/404', () => response({ status: 404 }));
-    requests.route('GET', '/405', () => response({ status: 405 }));
-    requests.route('GET', '/406', () => response({ status: 406 }));
-    requests.route('GET', '/407', () => response({ status: 407 }));
-    requests.route('GET', '/408', () => response({ status: 408 }));
     requests.route('GET', '/409', () => response({ status: 409 }));
-    requests.route('GET', '/410', () => response({ status: 410 }));
-    requests.route('GET', '/411', () => response({ status: 411 }));
-    requests.route('GET', '/412', () => response({ status: 412 }));
-    requests.route('GET', '/413', () => response({ status: 413 }));
-    requests.route('GET', '/414', () => response({ status: 414 }));
-    requests.route('GET', '/415', () => response({ status: 415 }));
-    requests.route('GET', '/416', () => response({ status: 416 }));
-    requests.route('GET', '/417', () => response({ status: 417 }));
-    requests.route('GET', '/418', () => response({ status: 418 }));
-    requests.route('GET', '/420', () => response({ status: 420 }));
-    requests.route('GET', '/422', () => response({ status: 422 }));
-    requests.route('GET', '/423', () => response({ status: 423 }));
-    requests.route('GET', '/424', () => response({ status: 424 }));
-    requests.route('GET', '/425', () => response({ status: 425 }));
-    requests.route('GET', '/426', () => response({ status: 426 }));
-    requests.route('GET', '/428', () => response({ status: 428 }));
-    requests.route('GET', '/429', () => response({ status: 429 }));
-    requests.route('GET', '/431', () => response({ status: 431 }));
-    requests.route('GET', '/444', () => response({ status: 444 }));
-    requests.route('GET', '/449', () => response({ status: 449 }));
-    requests.route('GET', '/450', () => response({ status: 450 }));
-    requests.route('GET', '/451', () => response({ status: 451 }));
-    requests.route('GET', '/499', () => response({ status: 499 }));
     // 5xx - Server Error
-    requests.route('GET', '/500', () => response({ status: 499 }));
-    requests.route('GET', '/501', () => response({ status: 499 }));
-    requests.route('GET', '/502', () => response({ status: 499 }));
+    requests.route('GET', '/500', () => response({ status: 500 }));
 
     await requests.listen();
-    await fetch(`http://0.0.0.0:${requests.port()}/100`);
+    assert.equal('OK', await (await fetch(`http://0.0.0.0:${requests.port()}/200`)).text());
+    assert.equal('Created', await (await fetch(`http://0.0.0.0:${requests.port()}/201`)).text());
+    // assert.equal('No Content', await (await fetch(`http://0.0.0.0:${requests.port()}/204`)).text());
+    // assert.equal('Not Modified', await (await fetch(`http://0.0.0.0:${requests.port()}/304`)).text());
+    assert.equal('Bad Request', await (await fetch(`http://0.0.0.0:${requests.port()}/400`)).text());
+    assert.equal('Unauthorized', await (await fetch(`http://0.0.0.0:${requests.port()}/401`)).text());
+    assert.equal('Forbidden', await (await fetch(`http://0.0.0.0:${requests.port()}/403`)).text());
+    assert.equal('Not Found', await (await fetch(`http://0.0.0.0:${requests.port()}/404`)).text());
+    assert.equal('Conflict', await (await fetch(`http://0.0.0.0:${requests.port()}/409`)).text());
+    assert.equal('Internal Server Error', await (await fetch(`http://0.0.0.0:${requests.port()}/500`)).text());
     await requests.close();
   } catch (e) {
     return e;

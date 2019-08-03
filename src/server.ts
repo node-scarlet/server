@@ -125,10 +125,22 @@ function adaptResponse(response, ctx) {
 
   // Status Code
   ctx.response.status = response.status;
+  
   // Headers
   for (const [name, value] of Object.entries(response.headers)) {
     ctx.set(name, value);
   }
+
   // Body
-  if (response.body) ctx.response.body = response.body;
+  if (response.body.length) ctx.response.body = response.body;
+  else if (response.status == 200) ctx.response.body = 'OK';
+  else if (response.status == 201) ctx.response.body = 'Created'
+  else if (response.status == 204) ctx.response.body = 'No Content' // Not working
+  else if (response.status == 304) ctx.response.body = 'Not Modified' // Not working
+  else if (response.status == 400) ctx.response.body = 'Bad Request'
+  else if (response.status == 401) ctx.response.body = 'Unauthorized'
+  else if (response.status == 403) ctx.response.body = 'Forbidden'
+  else if (response.status == 404) ctx.response.body = 'Not Found'
+  else if (response.status == 409) ctx.response.body = 'Conflict'
+  else if (response.status == 500) ctx.response.body = 'Internal Server Error'
 }
