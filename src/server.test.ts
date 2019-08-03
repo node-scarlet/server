@@ -1,6 +1,6 @@
 import { strict as assert } from 'assert';
 const { URLSearchParams } = require('url');
-import { Server, Response, response } from './server'
+import * as http  from './server'
 import * as fetch from 'node-fetch';
 
 export const tests = [
@@ -22,7 +22,7 @@ async function portZeroTest() {
   guarantee an available port`;
 
   try {
-    const requests = new Server();
+    const requests = http.server();
     await requests.listen();
     assert(requests.port());
     await requests.close();
@@ -40,9 +40,9 @@ async function defaultHeadersTest() {
 
   try {
     // Start up an http server
-    const requests = new Server();
+    const requests = http.server();
     requests.route('GET', '/', (req, meta) => {
-      return new Response({
+      return http.response({
         status: 200,
         headers: {},
         body: ''
@@ -73,12 +73,12 @@ async function handlerMetaTest() {
 
   try {
     // Start up an http server
-    const requests = new Server();
+    const requests = http.server();
     requests.route('GET', '/', (req, meta) => {
       meta.desire = 'love';
     })
     requests.route('GET', '/', (req, meta) => {
-      return new Response({
+      return http.response({
         status: 200,
         headers: {},
         body: 'Wilber didn\'t want food. He wanted ' + meta.desire,
@@ -104,9 +104,9 @@ async function illegalRouteMethodsTest() {
 
   try {
     const registerIllegalRoute = () => {
-      const requests = new Server();
+      const requests = http.server();
       requests.route('SAVE', '/', (req, meta) => {
-        return new Response();
+        return http.response();
       })
     }
 
@@ -126,9 +126,9 @@ async function responseConstructorTest() {
 
   try {
     // Start up an http server
-    const requests = new Server();
+    const requests = http.server();
     requests.route('GET', '/', (req, meta) => {
-      return new Response();
+      return http.response();
     })
 
     await requests.listen();
@@ -144,7 +144,7 @@ async function requestBodyParserURLencodedTest() {
   will be parsed into an object`;
 
   try {
-    const requests = new Server();
+    const requests = http.server();
     requests.route('POST', '/', (req, meta) => {
 
       assert.equal(
@@ -180,7 +180,7 @@ async function requestBodyParserJsonTest() {
   will be parsed into an object`;
 
   try {
-    const requests = new Server();
+    const requests = http.server();
     requests.route('POST', '/', (req, meta) => {
 
       assert.equal(
@@ -215,7 +215,7 @@ async function requestUrlTest() {
   a url property`;
 
   try {
-    const requests = new Server();
+    const requests = http.server();
     requests.route('GET', '/', (req, meta) => {
       assert.equal(
         req.url,
@@ -236,7 +236,7 @@ async function requestQueryTest() {
   parameters`;
 
   try {
-    const requests = new Server();
+    const requests = http.server();
     requests.route('GET', '/thinking', (req, meta) => {
       // query is a null-prototype object, so deepEqual doesn't work as one might expect
       assert.equal(
@@ -271,12 +271,12 @@ async function requestRedirectTest() {
   using a response constructor`;
 
   try {
-    const first = new Server();
-    const second = new Server();
+    const first = http.server();
+    const second = http.server();
 
     first.route('GET', '/', (req, meta) => {
       const location = `http://0.0.0.0:${second.port()}`;
-      return new Response({
+      return http.response({
         status: 307,
         headers: { location }
       })
@@ -305,21 +305,21 @@ async function defaultBodyTest() {
   body, the status code message should be the body`;
 
   try {
-    const requests = new Server();
+    const requests = http.server();
     // 2xx - Success
-    requests.route('GET', '/200', () => response({ status: 200 }));
-    requests.route('GET', '/201', () => response({ status: 201 }));
-    requests.route('GET', '/204', () => response({ status: 204 }));
+    requests.route('GET', '/200', () => http.response({ status: 200 }));
+    requests.route('GET', '/201', () => http.response({ status: 201 }));
+    requests.route('GET', '/204', () => http.response({ status: 204 }));
     // 3xx - Redirection
-    requests.route('GET', '/304', () => response({ status: 304 }));
+    requests.route('GET', '/304', () => http.response({ status: 304 }));
     // 4xx - Client Error
-    requests.route('GET', '/400', () => response({ status: 400 }));
-    requests.route('GET', '/401', () => response({ status: 401 }));
-    requests.route('GET', '/403', () => response({ status: 403 }));
-    requests.route('GET', '/404', () => response({ status: 404 }));
-    requests.route('GET', '/409', () => response({ status: 409 }));
+    requests.route('GET', '/400', () => http.response({ status: 400 }));
+    requests.route('GET', '/401', () => http.response({ status: 401 }));
+    requests.route('GET', '/403', () => http.response({ status: 403 }));
+    requests.route('GET', '/404', () => http.response({ status: 404 }));
+    requests.route('GET', '/409', () => http.response({ status: 409 }));
     // 5xx - Server Error
-    requests.route('GET', '/500', () => response({ status: 500 }));
+    requests.route('GET', '/500', () => http.response({ status: 500 }));
 
     await requests.listen();
     assert.equal('OK', await (await fetch(`http://0.0.0.0:${requests.port()}/200`)).text());
