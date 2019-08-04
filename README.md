@@ -31,7 +31,15 @@ const denyAccess = (req, meta) => {
 } 
 ```
 
-Use the `meta` argument to store arbitary data that can be used by other handlers. If a handler doesn't return a response, the request will continue flowing to downstream handlers.
+The `req` object is made up of the following properties:
+* `method`: The http verb (GET, POST, etc..)that the request was made with
+* `headers`: An object containing header names, and their corresponding values
+* `url`: The full url pathname starting after the domain, E.G: `"/products/hats?id=45&limit=1"`
+* `params`: An object representation of dynamic url segments. A request matching the url pattern `"/products/:type"`, might have a `params` value of `{ type: "hats" }`, or `{ type: "watches" }`.
+* `body`: A string representation of the request body.
+* `query`: An object representation of querystring values, E.G: `{ id: "45", limit: 1 }`
+
+The `meta` argument is used to store arbitary data that can be used by other handlers. If a handler doesn't return a response, the request will continue flowing to downstream handlers.
 
 ```JS
 
