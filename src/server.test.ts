@@ -306,19 +306,15 @@ async function defaultBodyTest() {
 
   try {
     const requests = http.server();
-    // 2xx - Success
     requests.route('GET', '/200', () => http.response({ status: 200 }));
     requests.route('GET', '/201', () => http.response({ status: 201 }));
     requests.route('GET', '/204', () => http.response({ status: 204 }));
-    // 3xx - Redirection
     requests.route('GET', '/304', () => http.response({ status: 304 }));
-    // 4xx - Client Error
     requests.route('GET', '/400', () => http.response({ status: 400 }));
     requests.route('GET', '/401', () => http.response({ status: 401 }));
     requests.route('GET', '/403', () => http.response({ status: 403 }));
     requests.route('GET', '/404', () => http.response({ status: 404 }));
     requests.route('GET', '/409', () => http.response({ status: 409 }));
-    // 5xx - Server Error
     requests.route('GET', '/500', () => http.response({ status: 500 }));
 
     await requests.listen();
