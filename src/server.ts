@@ -107,6 +107,19 @@ function adaptRequest(ctx): HttpRequestInterface {
   });
 }
 
+const statusCodes = {
+  200: 'OK',
+  201: 'Created',
+  204: 'No Content',
+  304: 'Not Modified',
+  400: 'Bad Request',
+  401: 'Unauthorized',
+  403: 'Forbidden',
+  404: 'Not Found',
+  409: 'Conflict',
+  500: 'Internal Server Error',
+}
+
 function adaptResponse(response, ctx) {
   if (typeof response == 'string') {
     response = new Response({
@@ -132,15 +145,8 @@ function adaptResponse(response, ctx) {
   }
 
   // Body
-  if (response.body.length) ctx.response.body = response.body;
-  else if (response.status == 200) ctx.response.body = 'OK';
-  else if (response.status == 201) ctx.response.body = 'Created'
-  else if (response.status == 204) ctx.response.body = 'No Content' // Not working
-  else if (response.status == 304) ctx.response.body = 'Not Modified' // Not working
-  else if (response.status == 400) ctx.response.body = 'Bad Request'
-  else if (response.status == 401) ctx.response.body = 'Unauthorized'
-  else if (response.status == 403) ctx.response.body = 'Forbidden'
-  else if (response.status == 404) ctx.response.body = 'Not Found'
-  else if (response.status == 409) ctx.response.body = 'Conflict'
-  else if (response.status == 500) ctx.response.body = 'Internal Server Error'
+  if (response.body.length)
+    ctx.response.body = response.body;
+  else if (statusCodes[response.status])
+    ctx.response.body = statusCodes[response.status];
 }
