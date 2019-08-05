@@ -15,6 +15,7 @@ export const tests = [
   requestQueryTest,
   requestRedirectTest,
   defaultBodyTest,
+  responseShortHandTest,
 ];
 
 async function portZeroTest() {
@@ -328,6 +329,28 @@ async function defaultBodyTest() {
     assert.equal('Not Found', await (await fetch(`http://0.0.0.0:${requests.port()}/404`)).text());
     assert.equal('Conflict', await (await fetch(`http://0.0.0.0:${requests.port()}/409`)).text());
     assert.equal('Internal Server Error', await (await fetch(`http://0.0.0.0:${requests.port()}/500`)).text());
+    await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
+
+async function responseShortHandTest() {
+  const description = `Handlers can return status codes, strings,
+  and objects as a shortcut`;
+
+  try {
+    const requests = http.server();
+    requests.route('GET', '/num', () => 200);
+    requests.route('GET', '/numbad', () => 400);
+    requests.route('GET', '/str', () => 'hello');
+    requests.route('GET', '/obj', () => ({ data: 'success' }));
+
+    await requests.listen();
+    assert.equal('OK', await (await fetch(`http://0.0.0.0:${requests.port()}/num`)).text());
+    assert.equal('Bad Request', await (await fetch(`http://0.0.0.0:${requests.port()}/numbad`)).text());
+    assert.equal('hello', await (await fetch(`http://0.0.0.0:${requests.port()}/str`)).text());
+    assert.deepEqual({ data: 'success' }, await (await fetch(`http://0.0.0.0:${requests.port()}/obj`)).json());
     await requests.close();
   } catch (e) {
     return e;

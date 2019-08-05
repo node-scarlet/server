@@ -128,6 +128,13 @@ function adaptResponse(response, ctx) {
       body: response
     })
   }
+  else if (typeof response == 'number' && statusCodes[response]) {
+    response = new Response({
+      status: response,
+      headers: { 'content-type': 'text/plain' },
+      body: statusCodes[response]
+    })
+  }
   else if (response instanceof Response == false && typeof response == 'object') {
     response = new Response({
       status: 200,
