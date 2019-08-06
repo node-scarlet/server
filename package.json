@@ -6,7 +6,8 @@
   "scripts": {
     "prepublish": "npm run build",
     "build": "npx tsc",
-    "test": "npm run build && node dist/test"
+    "test": "ts-node src/test.ts",
+    "start": "ts-node src/prototype.ts"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
     "koa-router": "^7.4.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.5.3",
+    "url-pattern": "^1.0.3"
   }
 }
