@@ -5,7 +5,7 @@ import * as fetch from 'node-fetch';
 
 export const tests = [
   portZeroTest,
-  // defaultHeadersTest,
+  defaultHeadersTest,
   // handlerMetaTest,
   // illegalRouteMethodsTest,
   // responseConstructorTest,

@@ -31,17 +31,36 @@ function port() {
   return this.s.address().port;
 }
 
+function route(method, urlpattern, handler) {
+  this.middleware.push(middleware(method, urlpattern, handler));
+}
+
 class Server {
   listen;
   close;
   port;
+  middlewares;
   constructor() {
     this.listen = listen.bind(this)
     this.close = close.bind(this)
     this.port = port.bind(this)
+    this.middlewares = [];
   }
 }
 
 export function server() {
   return new Server();
+}
+
+function middleware(method, urlpattern, handler) {
+  return {
+    method,
+    urlpattern,
+    handler,
+    match: (url) => new UrlPattern(urlpattern).match(url),
+  }
+}
+
+function requestMatchesHandler(req, middleware) {
+  // ...
 }
