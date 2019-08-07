@@ -9,7 +9,6 @@ export const tests = [
   defaultHeadersTest,
   handlerMetaTest,
   illegalRouteMethodsTest,
-  // responseConstructorTest,
   // requestBodyParserURLencodedTest,
   // requestBodyParserJsonTest,
   // requestUrlTest,
@@ -43,7 +42,7 @@ async function defaultHeadersTest() {
   try {
     // Start up an http server
     const requests = http.server();
-    requests.route('GET', '/', (req, meta) => {
+    requests.route(GET, '/', (req, meta) => {
       return http.response({
         status: 200,
         headers: {},
@@ -76,10 +75,10 @@ async function handlerMetaTest() {
   try {
     // Start up an http server
     const requests = http.server();
-    requests.route('GET', '/', (req, meta) => {
+    requests.route(GET, '/', (req, meta) => {
       meta.desire = 'love';
     })
-    requests.route('GET', '/', (req, meta) => {
+    requests.route(GET, '/', (req, meta) => {
       return http.response({
         status: 200,
         headers: {},
@@ -120,26 +119,6 @@ async function illegalRouteMethodsTest() {
     return e;
   }
 }
-
-// async function responseConstructorTest() {
-//   const description = `The Response constructor
-//   can be used to validate return material, and allows
-//   passing only some of the required properties`;
-
-//   try {
-//     // Start up an http server
-//     const requests = http.server();
-//     requests.route('GET', '/', (req, meta) => {
-//       return http.response();
-//     })
-
-//     await requests.listen();
-//     await requests.close();
-
-//   } catch (e) {
-//     return e;
-//   }
-// }
 
 // async function requestBodyParserURLencodedTest() {
 //   const description = `URL encoded body content
