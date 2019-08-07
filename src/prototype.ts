@@ -8,6 +8,7 @@ import { promisify } from 'util';
 
 // Convert a `response` shaped object to a `res` shaped one
 function adaptResponse(response, res) {
+  response = responseShorthand(response);
   const { status, headers, body } = response;
   res.writeHead(status, {
     'Content-Length': Buffer.byteLength(body),
@@ -79,10 +80,29 @@ function listen(port=0) {
       }
 
       // Not Found
-      adaptResponse(response({ status: 404 }), res);
+      const notFoundResponse = response({ status: 404 })
+      adaptResponse(notFoundResponse, res);
     } catch (e) { throw e }
   });
   this.s.listen(port);
+}
+
+function responseShorthand(response) {
+  if (typeof response == 'string') {
+    return Object.freeze({
+      status: 200,
+      headers: { 'content-type': 'text/html' },
+      body: response 
+    })
+  }
+  else if (typeof response == 'number' && statusCodes[response]) {
+    return Object.freeze({
+      status: response,
+      headers: { 'content-type': 'text/plain' },
+      body: statusCodes[response]
+    })
+  }
+  else return response;
 }
 
 function close() {
@@ -142,11 +162,18 @@ function methodStacks() {
 }
 
 export function response(options:any={}) {
-  return Object.freeze({
-    status: options.status || 200,
-    headers: options.headers || {},
-    body: options.body || '',
-  })
+  let provided:any = {};
+  if (options.status) provided.status = options.status;
+  if (options.headers) provided.headers = options.headers;
+  if (options.body) provided.body = options.body;
+  const defaults = {
+    status: 200,
+    headers: {},
+    body: '',
+  }
+  return Object.freeze(
+    Object.assign(defaults, options)
+  );
 }
 
 export const methods = {

@@ -13,7 +13,7 @@ export const tests = [
   requestBodyParserJsonTest,
   requestUrlTest,
   requestQueryTest,
-  // requestRedirectTest,
+  requestRedirectTest,
   // defaultBodyTest,
   // responseShortHandTest,
 ];
@@ -246,39 +246,40 @@ async function requestQueryTest() {
   }
 }
 
-// async function requestRedirectTest() {
-//   const description = `Redirects should be possible
-//   using a response constructor`;
+async function requestRedirectTest() {
+  const description = `Redirects should be possible
+  using a response constructor`;
 
-//   try {
-//     const first = http.server();
-//     const second = http.server();
+  try {
+    const first = http.server();
+    const second = http.server();
 
-//     first.route('GET', '/', (req, meta) => {
-//       const location = `http://0.0.0.0:${second.port()}`;
-//       return http.response({
-//         status: 307,
-//         headers: { location }
-//       })
-//     })
+    first.route('GET', '/', (req, meta) => {
+      const location = `http://0.0.0.0:${second.port()}`;
+      return http.response({
+        status: 307,
+        headers: { location },
+        body: '',
+      })
+    })
 
-//     second.route('GET', '/', (req, meta) => 'Success!')
+    second.route('GET', '/', (req, meta) => 'Success!')
 
-//     await first.listen();
-//     await second.listen();
+    await first.listen();
+    await second.listen();
 
-//     const response = await fetch(`http://0.0.0.0:${first.port()}`);
-//     assert.equal(
-//       await response.text(),
-//       'Success!'
-//     );
+    const response = await fetch(`http://0.0.0.0:${first.port()}`);
+    assert.equal(
+      await response.text(),
+      'Success!'
+    );
 
-//     await first.close();
-//     await second.close();
-//   } catch (e) {
-//     return e;
-//   }
-// }
+    await first.close();
+    await second.close();
+  } catch (e) {
+    return e;
+  }
+}
 
 // async function defaultBodyTest() {
 //   const description = `If a response has a status but no
