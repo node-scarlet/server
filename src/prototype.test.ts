@@ -1,13 +1,14 @@
 import { strict as assert } from 'assert';
 const { URLSearchParams } = require('url');
 import * as http  from './prototype';
+const { GET, POST } = http.methods;
 import * as fetch from 'node-fetch';
 
 export const tests = [
   portZeroTest,
   defaultHeadersTest,
   handlerMetaTest,
-  // illegalRouteMethodsTest,
+  illegalRouteMethodsTest,
   // responseConstructorTest,
   // requestBodyParserURLencodedTest,
   // requestBodyParserJsonTest,
@@ -99,26 +100,26 @@ async function handlerMetaTest() {
   }
 }
 
-// async function illegalRouteMethodsTest() {
-//   const description = `Registering Unsupported 
-//   request methods should throw an error`;
+async function illegalRouteMethodsTest() {
+  const description = `Registering Unsupported 
+  request methods should throw an error`;
 
-//   try {
-//     const registerIllegalRoute = () => {
-//       const requests = http.server();
-//       requests.route('SAVE', '/', (req, meta) => {
-//         return http.response();
-//       })
-//     }
+  try {
+    const registerIllegalRoute = () => {
+      const requests = http.server();
+      requests.route('SAVE', '/', (req, meta) => {
+        return http.response();
+      })
+    }
 
-//     assert.throws(registerIllegalRoute, {
-//       message: 'Unsupported verb "SAVE".'
-//     })
+    assert.throws(registerIllegalRoute, {
+      message: 'Unsupported verb "SAVE".'
+    })
       
-//   } catch (e) {
-//     return e;
-//   }
-// }
+  } catch (e) {
+    return e;
+  }
+}
 
 // async function responseConstructorTest() {
 //   const description = `The Response constructor

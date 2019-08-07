@@ -88,6 +88,8 @@ function requestMatchesHandler(req, middleware) {
 }
 
 function route(method, urlpattern, handler) {
+  method = method.toUpperCase();
+  if (!methods[method]) throw new Error(`Unsupported verb "${method}".`);
   this.middlewares[method].push(middleware(method, urlpattern, handler));
 }
 
@@ -101,10 +103,30 @@ function methodStacks() {
   }
 }
 
-export function response(options) {
+export function response(options:any={}) {
   return Object.freeze({
     status: options.status || 200,
     headers: options.headers || {},
     body: options.body || '',
   })
+}
+
+export const methods = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE'
+}
+
+const statusCodes = {
+  200: 'OK',
+  201: 'Created',
+  204: 'No Content',
+  304: 'Not Modified',
+  400: 'Bad Request',
+  401: 'Unauthorized',
+  403: 'Forbidden',
+  404: 'Not Found',
+  409: 'Conflict',
+  500: 'Internal Server Error',
 }
