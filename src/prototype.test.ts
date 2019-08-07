@@ -35,38 +35,38 @@ async function portZeroTest() {
   }
 }
 
-// async function defaultHeadersTest() {
-//   const description = `Server responses should specify certain
-//   headers by default`;
+async function defaultHeadersTest() {
+  const description = `Server responses should specify certain
+  headers by default`;
 
-//   try {
-//     // Start up an http server
-//     const requests = http.server();
-//     requests.route('GET', '/', (req, meta) => {
-//       return http.response({
-//         status: 200,
-//         headers: {},
-//         body: ''
-//       })
-//     })
-//     await requests.listen();
+  try {
+    // Start up an http server
+    const requests = http.server();
+    requests.route('GET', '/', (req, meta) => {
+      return http.response({
+        status: 200,
+        headers: {},
+        body: ''
+      })
+    })
+    await requests.listen();
     
-//     // Make A request to the server defined above
-//     let body = ''
-//     const res = await fetch(`http://0.0.0.0:${requests.port()}`);
-//     assert.equal(res.status, 200);
-//     const { length } = Object.keys(res.headers.raw());
-//     assert.equal(length, 5);
-//     assert.ok(res.headers.get('date'));
-//     assert.equal(res.headers.get('vary'), 'Origin');
-//     assert.equal(res.headers.get('content-type'), 'text/plain; charset=utf-8');
-//     assert.equal(res.headers.get('connection'), 'close');
-//     await requests.close();
+    // Make A request to the server defined above
+    let body = ''
+    const res = await fetch(`http://0.0.0.0:${requests.port()}`);
+    assert.equal(res.status, 200);
 
-//   } catch (e) {
-//     return e;
-//   }
-// }
+    const { length } = Object.keys(res.headers.raw());
+    assert.equal(length, 3);
+    assert.ok(res.headers.get('date'));
+    assert.ok(res.headers.get('content-length'));
+    assert.equal(res.headers.get('connection'), 'close');
+    await requests.close();
+
+  } catch (e) {
+    return e;
+  }
+}
 
 // async function handlerMetaTest() {
 //   const description = `Request handlers should be able 
