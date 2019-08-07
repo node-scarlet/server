@@ -12,7 +12,7 @@ export const tests = [
   requestBodyParserURLencodedTest,
   requestBodyParserJsonTest,
   requestUrlTest,
-  // requestQueryTest,
+  requestQueryTest,
   // requestRedirectTest,
   // defaultBodyTest,
   // responseShortHandTest,
@@ -210,41 +210,41 @@ async function requestUrlTest() {
   }
 }
 
-// async function requestQueryTest() {
-//   const description = `Requests should have
-//   a query property that represents querystring
-//   parameters`;
+async function requestQueryTest() {
+  const description = `Requests should have
+  a query property that represents querystring
+  parameters`;
 
-//   try {
-//     const requests = http.server();
-//     requests.route('GET', '/thinking', (req, meta) => {
-//       // query is a null-prototype object, so deepEqual doesn't work as one might expect
-//       assert.equal(
-//         JSON.stringify(req.query),
-//         JSON.stringify({ splish: 'splash' })
-//       );
-//     })
-//     requests.route('GET', '/everything/was', (req, meta) => {
-//       assert.equal(
-//         JSON.stringify(req.query),
-//         JSON.stringify({ i: 'was', taking: 'a bath'})
-//       );
-//     })
-//     requests.route('GET', '/alright', (req, meta) => {
-//       assert.equal(
-//         JSON.stringify(req.query),
-//         JSON.stringify({ long: 'about', 'a saturday': 'night' })
-//       );
-//     })
-//     await requests.listen();
-//     await fetch(`http://0.0.0.0:${requests.port()}/thinking?splish=splash`);
-//     await fetch(`http://0.0.0.0:${requests.port()}/everything/was?i=was&taking=a%20bath`);
-//     await fetch(`http://0.0.0.0:${requests.port()}/alright?long=about&a%20saturday=night`);
-//     await requests.close();
-//   } catch (e) {
-//     return e;
-//   }
-// }
+  try {
+    const requests = http.server();
+    requests.route('GET', '/thinking', (req, meta) => {
+      // query is a null-prototype object, so deepEqual doesn't work as one might expect
+      assert.equal(
+        JSON.stringify(req.query),
+        JSON.stringify({ splish: 'splash' })
+      );
+    })
+    requests.route('GET', '/everything/was', (req, meta) => {
+      assert.equal(
+        JSON.stringify(req.query),
+        JSON.stringify({ i: 'was', taking: 'a bath'})
+      );
+    })
+    requests.route('GET', '/alright', (req, meta) => {
+      assert.equal(
+        JSON.stringify(req.query),
+        JSON.stringify({ long: 'about', 'a saturday': 'night' })
+      );
+    })
+    await requests.listen();
+    await fetch(`http://0.0.0.0:${requests.port()}/thinking?splish=splash`);
+    await fetch(`http://0.0.0.0:${requests.port()}/everything/was?i=was&taking=a%20bath`);
+    await fetch(`http://0.0.0.0:${requests.port()}/alright?long=about&a%20saturday=night`);
+    await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
 
 // async function requestRedirectTest() {
 //   const description = `Redirects should be possible
