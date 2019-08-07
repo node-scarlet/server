@@ -31,13 +31,13 @@ function listen(port=0) {
       headers,
       query,
     }
+    const meta = {};
 
-    // console.log('middle:', this.middlewares);
     for (const m of this.middlewares[method]) {
       const match = m.match(path);
       if (match) {
         request.params = match;
-        const response = m.handler(request);
+        const response = m.handler(request, meta);
         if (response) {
           return adaptResponse(response, res);
         }

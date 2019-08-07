@@ -6,7 +6,7 @@ import * as fetch from 'node-fetch';
 export const tests = [
   portZeroTest,
   defaultHeadersTest,
-  // handlerMetaTest,
+  handlerMetaTest,
   // illegalRouteMethodsTest,
   // responseConstructorTest,
   // requestBodyParserURLencodedTest,
@@ -68,36 +68,36 @@ async function defaultHeadersTest() {
   }
 }
 
-// async function handlerMetaTest() {
-//   const description = `Request handlers should be able 
-//   to set metafields that are accessible to later handlers`;
+async function handlerMetaTest() {
+  const description = `Request handlers should be able 
+  to set metafields that are accessible to later handlers`;
 
-//   try {
-//     // Start up an http server
-//     const requests = http.server();
-//     requests.route('GET', '/', (req, meta) => {
-//       meta.desire = 'love';
-//     })
-//     requests.route('GET', '/', (req, meta) => {
-//       return http.response({
-//         status: 200,
-//         headers: {},
-//         body: 'Wilber didn\'t want food. He wanted ' + meta.desire,
-//       })
-//     })
-//     await requests.listen();
+  try {
+    // Start up an http server
+    const requests = http.server();
+    requests.route('GET', '/', (req, meta) => {
+      meta.desire = 'love';
+    })
+    requests.route('GET', '/', (req, meta) => {
+      return http.response({
+        status: 200,
+        headers: {},
+        body: 'Wilber didn\'t want food. He wanted ' + meta.desire,
+      })
+    })
+    await requests.listen();
     
-//     // Make A request to the server defined above
-//     const res = await fetch(`http://0.0.0.0:${requests.port()}`);
-//     assert.equal(res.status, 200);
-//     assert.equal(await res.text(), 'Wilber didn\'t want food. He wanted love');
-//     await requests.close();
-//   }
+    // Make A request to the server defined above
+    const res = await fetch(`http://0.0.0.0:${requests.port()}`);
+    assert.equal(res.status, 200);
+    assert.equal(await res.text(), 'Wilber didn\'t want food. He wanted love');
+    await requests.close();
+  }
 
-//   catch (e) {
-//     return e;
-//   }
-// }
+  catch (e) {
+    return e;
+  }
+}
 
 // async function illegalRouteMethodsTest() {
 //   const description = `Registering Unsupported 
