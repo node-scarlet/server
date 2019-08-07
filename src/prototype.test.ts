@@ -9,7 +9,7 @@ export const tests = [
   defaultHeadersTest,
   handlerMetaTest,
   illegalRouteMethodsTest,
-  // requestBodyParserURLencodedTest,
+  requestBodyParserURLencodedTest,
   requestBodyParserJsonTest,
   // requestUrlTest,
   // requestQueryTest,
@@ -120,41 +120,40 @@ async function illegalRouteMethodsTest() {
   }
 }
 
-// async function requestBodyParserURLencodedTest() {
-//   const description = `URL encoded body content
-//   will be parsed into an object`;
+async function requestBodyParserURLencodedTest() {
+  const description = `URL encoded body content
+  will be parsed into an object`;
 
-//   try {
-//     const requests = http.server();
-//     requests.route(POST, '/', (req, meta) => {
+  try {
+    const requests = http.server();
+    requests.route(POST, '/', (req, meta) => {
+      assert.equal(
+        typeof req.body,
+        'object'
+      );
+      assert.deepEqual(
+        { name: 'charlotte' },
+        req.body,
+      );
+    })
 
-//       assert.equal(
-//         typeof req.body,
-//         'object'
-//       );
+    await requests.listen();
 
-//       assert.deepEqual(
-//         { name: 'charlotte' },
-//         req.body,
-//       );
+    const params = new URLSearchParams();
+    params.append('name', 'charlotte');
+    await fetch(`http://0.0.0.0:${requests.port()}`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded'
+      },
+      body: params,
+    });
 
-//     })
-
-//     await requests.listen();
-
-//     const params = new URLSearchParams();
-//     params.append('name', 'charlotte');
-//     await fetch(`http://0.0.0.0:${requests.port()}`, {
-//       method: 'POST',
-//       body: params,
-//     });
-
-//     await requests.close();
-
-//   } catch (e) {
-//     return e;
-//   }
-// }
+    await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
 
 async function requestBodyParserJsonTest() {
   const description = `JSON encoded body content

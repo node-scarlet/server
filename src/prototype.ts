@@ -41,14 +41,20 @@ function listen(port=0) {
       // Separate data
       const { url, method, headers } = req;
       const [path, querystring] = url.split('?');
+      let body:any = await asyncBody(req);
 
       // Parse Querystring
       const query = Object.assign({}, qs.decode(querystring));
 
-      // Parse Body
-      let body:any = await asyncBody(req);
-      try { body = JSON.parse(body) }
-      catch (e) {}
+      // Parse JSON Body
+      if (headers['content-type'] == 'application/json') {
+        try { body = JSON.parse(body) }
+        catch (e) {}
+      }
+      // Parse URL-Encoded Body
+      else if (headers['content-type'] == 'application/x-www-form-urlencoded') {
+        body = Object.assign({}, qs.decode(body));
+      }
 
       // Adapt response
       const meta = {};
