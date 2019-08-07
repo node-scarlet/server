@@ -25,16 +25,10 @@ const asyncBody = promisify(function(req, callback) {
   req.on('end', () => {
       callback(null, body);
   });
+  req.on('error', (e) => {
+    callback(e);
+  })
 });
-
-function isJSON(str) {
-  try {
-    JSON.parse(str);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
 
 function listen(port=0) {
   this.s = http.createServer(async (req, res) => {
