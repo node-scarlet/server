@@ -11,7 +11,7 @@ export const tests = [
   illegalRouteMethodsTest,
   requestBodyParserURLencodedTest,
   requestBodyParserJsonTest,
-  // requestUrlTest,
+  requestUrlTest,
   // requestQueryTest,
   // requestRedirectTest,
   // defaultBodyTest,
@@ -161,7 +161,7 @@ async function requestBodyParserJsonTest() {
 
   try {
     const requests = http.server();
-    requests.route('POST', '/', (req, meta) => {
+    requests.route(POST, '/', (req, meta) => {
 
       assert.equal(
         typeof req.body,
@@ -190,25 +190,25 @@ async function requestBodyParserJsonTest() {
   }
 }
 
-// async function requestUrlTest() {
-//   const description = `Requests should have
-//   a url property`;
+async function requestUrlTest() {
+  const description = `Requests should have
+  a url property`;
 
-//   try {
-//     const requests = http.server();
-//     requests.route('GET', '/', (req, meta) => {
-//       assert.equal(
-//         req.url,
-//         '/?idea=special'
-//       );
-//     })
-//     await requests.listen();
-//     const response = await fetch(`http://0.0.0.0:${requests.port()}/?idea=special`);
-//     await requests.close();
-//   } catch (e) {
-//     return e;
-//   }
-// }
+  try {
+    const requests = http.server();
+    requests.route(GET, '/', (req, meta) => {
+      assert.equal(
+        req.url,
+        '/?idea=special'
+      );
+    })
+    await requests.listen();
+    await fetch(`http://0.0.0.0:${requests.port()}/?idea=special`);
+    await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
 
 // async function requestQueryTest() {
 //   const description = `Requests should have
