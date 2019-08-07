@@ -4,6 +4,7 @@
 import * as http from 'http';
 import * as qs from 'querystring';
 import * as UrlPattern from 'url-pattern';
+import { promisify } from 'util';
 
 // Convert a `response` shaped object to a `res` shaped one
 function adaptResponse(response, res) {
@@ -15,34 +16,65 @@ function adaptResponse(response, res) {
   res.end(body);
 }
 
+const asyncBody = promisify(function(req, callback) {
+  let body = '';
+  req.on('data', chunk => {
+      body += chunk.toString();
+  });
+  req.on('end', () => {
+      callback(null, body);
+  });
+});
+
+function isJSON(str) {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 function listen(port=0) {
-  this.s = http.createServer((req, res) => {
-    // Separate data
-    const { url, method, headers } = req;
-    const [path, querystring] = url.split('?');
+  this.s = http.createServer(async (req, res) => {
+    try {
+      // Separate data
+      const { url, method, headers } = req;
+      const [path, querystring] = url.split('?');
 
-    // Parse Querystring
-    const query = Object.assign({}, qs.decode(querystring));
+      // Parse Querystring
+      const query = Object.assign({}, qs.decode(querystring));
 
-    // Adapt response
-    const request:any = {
-      url,
-      method,
-      headers,
-      query,
-    }
-    const meta = {};
+      // Parse Body
+      let body:any = await asyncBody(req);
+      try { body = JSON.parse(body) }
+      catch (e) {}
 
-    for (const m of this.middlewares[method]) {
-      const match = m.match(path);
-      if (match) {
-        request.params = match;
-        const response = m.handler(request, meta);
-        if (response) {
-          return adaptResponse(response, res);
+      // Adapt response
+      const meta = {};
+      const request:any = {
+        url,
+        method,
+        query,
+        headers,
+        body,
+      }
+        
+      // See if any middleware matches the incoming request
+      for (const m of this.middlewares[method]) {
+        const match = m.match(path);
+        if (match) {
+          request.params = match;
+          const response = m.handler(request, meta);
+          if (response) {
+            return adaptResponse(response, res);
+          }
         }
       }
-    }
+
+      // Not Found
+      adaptResponse(response({ status: 404 }), res);
+    } catch (e) { throw e }
   });
   this.s.listen(port);
 }

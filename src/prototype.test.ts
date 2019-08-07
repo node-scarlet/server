@@ -10,7 +10,7 @@ export const tests = [
   handlerMetaTest,
   illegalRouteMethodsTest,
   // requestBodyParserURLencodedTest,
-  // requestBodyParserJsonTest,
+  requestBodyParserJsonTest,
   // requestUrlTest,
   // requestQueryTest,
   // requestRedirectTest,
@@ -126,7 +126,7 @@ async function illegalRouteMethodsTest() {
 
 //   try {
 //     const requests = http.server();
-//     requests.route('POST', '/', (req, meta) => {
+//     requests.route(POST, '/', (req, meta) => {
 
 //       assert.equal(
 //         typeof req.body,
@@ -156,40 +156,40 @@ async function illegalRouteMethodsTest() {
 //   }
 // }
 
-// async function requestBodyParserJsonTest() {
-//   const description = `JSON encoded body content
-//   will be parsed into an object`;
+async function requestBodyParserJsonTest() {
+  const description = `JSON encoded body content
+  will be parsed into an object`;
 
-//   try {
-//     const requests = http.server();
-//     requests.route('POST', '/', (req, meta) => {
+  try {
+    const requests = http.server();
+    requests.route('POST', '/', (req, meta) => {
 
-//       assert.equal(
-//         typeof req.body,
-//         'object'
-//       );
+      assert.equal(
+        typeof req.body,
+        'object'
+      );
 
-//       assert.deepEqual(
-//         { name: 'wilbur' },
-//         req.body,
-//       );
+      assert.deepEqual(
+        { name: 'wilbur' },
+        req.body,
+      );
 
-//     })
+    })
 
-//     await requests.listen();
+    await requests.listen();
 
-//     await fetch(`http://0.0.0.0:${requests.port()}`, {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ name: 'wilbur' }),
-//     });
+    const res = await fetch(`http://0.0.0.0:${requests.port()}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'wilbur' }),
+    });
 
-//     await requests.close();
+    await requests.close();
 
-//   } catch (e) {
-//     return e;
-//   }
-// }
+  } catch (e) {
+    return e;
+  }
+}
 
 // async function requestUrlTest() {
 //   const description = `Requests should have
