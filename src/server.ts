@@ -164,14 +164,10 @@ class Response {
   headers?: object;
   body?: object | string;
   constructor(options) {
-    if (options.status) this.status = options.status;
-    else this.status = 200;
-
-    if (options.headers) this.headers = options.headers;
-    else this.headers = {};
-    
-    if (options.body !== undefined) this.body = options.body;
-    else this.body = '';
+    const { status, headers, body } = options;
+    this.status = status ? status : 200;
+    this.headers = headers ? headers: {};
+    this.body = body != undefined ? body: '';
   }
 }
 
