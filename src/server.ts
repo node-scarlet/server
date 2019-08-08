@@ -1,159 +1,205 @@
-import * as Koa from 'koa';
-import * as bodyParser from 'koa-bodyparser';
-import * as KoaRouter from 'koa-router';
-import * as cors from '@koa/cors';
-import { AddressInfo } from 'net'; 
+/**
+ * Prototype: Rewrite module with the http module from the Node standard lib
+ */
+import * as http from 'http';
+import * as qs from 'querystring';
+import * as UrlPattern from 'url-pattern';
+import { promisify } from 'util';
 
-import {
-  HttpServerInterface,
-  HttpServerOptionsInterface,
-  HttpRequestInterface,
-  HttpHeadersInterface,
-  HttpResponseInterface,
-  HttpResponseMaterial,
-  RequestHandlerType,
-} from './http.types';
-import { Server as StandardServer } from 'https';
-
-export function server(...args) {
-  return new Server(...args);
+// Convert a `response` shaped object to a `res` shaped one
+function adaptResponse(response, res) {
+  response = responseShorthand(response);
+  const { status, headers, body } = response;
+  res.writeHead(status, {
+    'Content-Length': Buffer.byteLength(body),
+    ...headers,
+  })
+  res.end(body);
 }
 
-export function response(...args) {
-  return new Response(...args);
-}
+const asyncBody = promisify(function(req, callback) {
+  let body = '';
+  req.on('data', chunk => {
+      body += chunk.toString();
+  });
+  req.on('end', () => {
+      callback(null, body);
+  });
+  req.on('error', (e) => {
+    callback(e);
+  })
+});
 
-class Server implements HttpServerInterface {
-  options: HttpServerOptionsInterface;
-  private router: any;
-  private service: StandardServer;
+function listen(port=0) {
+  this.s = http.createServer(async (req, res) => {
+    try {
+      // Separate data
+      const { url, method, headers } = req;
+      const [path, querystring] = url.split('?');
+      let body:any = await asyncBody(req);
 
-  constructor(options?: HttpServerOptionsInterface) {
-    this.options = options;
-    this.router = new KoaRouter();
-  }
+      // Parse Querystring
+      const query = Object.assign({}, qs.decode(querystring));
 
-  port() {
-    return (<AddressInfo>this.service.address()).port || undefined;
-  }
+      // Parse JSON Body
+      if (headers['content-type'] == 'application/json') {
+        try { body = JSON.parse(body) }
+        catch (e) {}
+      }
+      // Parse URL-Encoded Body
+      else if (headers['content-type'] == 'application/x-www-form-urlencoded') {
+        body = Object.assign({}, qs.decode(body));
+      }
 
-  route(method:string, path:string, handler:RequestHandlerType) {
-    const verb = method.toLowerCase();
-    if ('function' !== typeof this.router[verb]) {
-      throw new Error(`Unsupported verb "${method}".`);
-    }
-    this.router[verb](path, async (ctx, next) => {
-        const req = adaptRequest(ctx);
-        const meta = ctx._meta || {};
-
-        const response: HttpResponseInterface | void = await handler(req, meta);
-        if (response) {
-          adaptResponse(response, ctx);
-        } else {
-          ctx._meta = meta;
-          await next();
+      // Adapt response
+      const meta = {};
+      const request:any = {
+        url,
+        method,
+        query,
+        headers,
+        body,
+      }
+        
+      // See if any middleware matches the incoming request
+      for (const m of this.middlewares[method]) {
+        const match = m.match(path);
+        if (match) {
+          request.params = match;
+          const response = m.handler(request, meta);
+          if (response) {
+            return adaptResponse(response, res);
+          }
         }
+      }
+
+      // Not Found
+      const notFoundResponse = response({ status: 404 })
+      adaptResponse(notFoundResponse, res);
+    } catch (e) { throw e }
+  });
+  this.s.listen(port);
+}
+
+function isResponse(obj) {
+  return (
+    Number.isInteger(obj['status'])
+    && typeof obj['headers'] == 'object'
+    && typeof obj['body'] == 'string'
+    && Object.keys(obj).length == 3
+  );
+}
+
+function responseShorthand(response) {
+  if (typeof response == 'string') {
+    return Object.freeze({
+      status: 200,
+      headers: { 'content-type': 'text/html' },
+      body: response 
     })
   }
-
-  async listen(port=0) {
-    const app = new Koa();
-
-    // Required Middleware
-    app.use(bodyParser());
-    app.use(cors());
-
-    app.use(this.router.routes());
-
-    this.service = await app.listen(port);
+  else if (typeof response == 'number' && statusMessages[response]) {
+    return Object.freeze({
+      status: response,
+      headers: { 'content-type': 'text/plain' },
+      body: statusMessages[response]
+    })
   }
+  else if (typeof response == 'object' && !isResponse(response)) {
+    return Object.freeze({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(response),
+    })
+  }
+  else return response;
+}
 
-  close() {
-    if (this.service) {
-      this.service.close();
-    }
+function close() {
+  this.s.close();
+}
+
+function port() {
+  return this.s.address().port;
+}
+
+class Server {
+  listen;
+  close;
+  port;
+  middlewares;
+  route;
+  constructor() {
+    this.listen = listen.bind(this)
+    this.close = close.bind(this)
+    this.port = port.bind(this)
+    this.middlewares = methodStacks();
+    this.route = route.bind(this);
   }
 }
 
-class Response implements HttpResponseInterface {
-  status: number;
-  headers: HttpHeadersInterface;
-  body: string;
-
-  constructor(options?: HttpResponseMaterial) {
-    this.status = options.status || 200;
-    this.headers = options.headers || {};
-    this.body = options.body || '';
-  }
+export function server() {
+  return new Server();
 }
 
-function adaptRequest(ctx): HttpRequestInterface {
-  const {
+function middleware(method, urlpattern, handler) {
+  return {
     method,
-    headers, 
-    url,
-    params,
-  } = ctx;
-
-  const { body, query }  = ctx.request;
-
-  return Object.freeze({
-    method,
-    headers,
-    url,
-    params,
-    body,
-    query,
-  });
+    urlpattern,
+    handler,
+    match: (url) => new UrlPattern(urlpattern).match(url),
+  }
 }
 
-const statusCodes = {
+function requestMatchesHandler(req, middleware) {
+  // ...
+}
+
+function route(method, urlpattern, handler) {
+  method = method.toUpperCase();
+  if (!methods[method]) throw new Error(`Unsupported verb "${method}".`);
+  this.middlewares[method].push(middleware(method, urlpattern, handler));
+}
+
+function methodStacks() {
+  return {
+    GET: [],
+    PUT: [],
+    POST: [],
+    PATCH: [],
+    DELETE: [],
+  }
+}
+
+export function response(options:any={}) {
+  let provided:any = {};
+  if (options.status) provided.status = options.status;
+  if (options.headers) provided.headers = options.headers;
+  if (options.body) provided.body = options.body;
+  const defaults = {
+    status: 200,
+    headers: {},
+    body: '',
+  }
+  return Object.freeze(
+    Object.assign(defaults, options)
+  );
+}
+
+export const methods = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE'
+}
+
+const statusMessages = {
   200: 'OK',
   201: 'Created',
-  204: 'No Content',
-  304: 'Not Modified',
   400: 'Bad Request',
   401: 'Unauthorized',
   403: 'Forbidden',
   404: 'Not Found',
   409: 'Conflict',
   500: 'Internal Server Error',
-}
-
-function adaptResponse(response, ctx) {
-  if (typeof response == 'string') {
-    response = new Response({
-      status: 200,
-      headers: { 'content-type': 'text/html' },
-      body: response
-    })
-  }
-  else if (typeof response == 'number' && statusCodes[response]) {
-    response = new Response({
-      status: response,
-      headers: { 'content-type': 'text/plain' },
-      body: statusCodes[response]
-    })
-  }
-  else if (response instanceof Response == false && typeof response == 'object') {
-    response = new Response({
-      status: 200,
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(response)
-    })
-  }
-
-  // Status Code
-  ctx.response.status = response.status;
-  
-  // Headers
-  for (const [name, value] of Object.entries(response.headers)) {
-    ctx.set(name, value);
-  }
-
-  // Body
-  if (response.body.length)
-    ctx.response.body = response.body;
-  else if (statusCodes[response.status])
-    ctx.response.body = statusCodes[response.status];
 }

@@ -1,6 +1,7 @@
 import { strict as assert } from 'assert';
 const { URLSearchParams } = require('url');
-import * as http  from './server'
+import * as http  from './http';
+const { GET, POST } = http.methods;
 import * as fetch from 'node-fetch';
 
 export const tests = [
@@ -8,7 +9,6 @@ export const tests = [
   defaultHeadersTest,
   handlerMetaTest,
   illegalRouteMethodsTest,
-  responseConstructorTest,
   requestBodyParserURLencodedTest,
   requestBodyParserJsonTest,
   requestUrlTest,
@@ -42,7 +42,7 @@ async function defaultHeadersTest() {
   try {
     // Start up an http server
     const requests = http.server();
-    requests.route('GET', '/', (req, meta) => {
+    requests.route(GET, '/', (req, meta) => {
       return http.response({
         status: 200,
         headers: {},
@@ -55,11 +55,11 @@ async function defaultHeadersTest() {
     let body = ''
     const res = await fetch(`http://0.0.0.0:${requests.port()}`);
     assert.equal(res.status, 200);
+
     const { length } = Object.keys(res.headers.raw());
-    assert.equal(length, 5);
+    assert.equal(length, 3);
     assert.ok(res.headers.get('date'));
-    assert.equal(res.headers.get('vary'), 'Origin');
-    assert.equal(res.headers.get('content-type'), 'text/plain; charset=utf-8');
+    assert.ok(res.headers.get('content-length'));
     assert.equal(res.headers.get('connection'), 'close');
     await requests.close();
 
@@ -75,10 +75,10 @@ async function handlerMetaTest() {
   try {
     // Start up an http server
     const requests = http.server();
-    requests.route('GET', '/', (req, meta) => {
+    requests.route(GET, '/', (req, meta) => {
       meta.desire = 'love';
     })
-    requests.route('GET', '/', (req, meta) => {
+    requests.route(GET, '/', (req, meta) => {
       return http.response({
         status: 200,
         headers: {},
@@ -120,44 +120,21 @@ async function illegalRouteMethodsTest() {
   }
 }
 
-async function responseConstructorTest() {
-  const description = `The Response constructor
-  can be used to validate return material, and allows
-  passing only some of the required properties`;
-
-  try {
-    // Start up an http server
-    const requests = http.server();
-    requests.route('GET', '/', (req, meta) => {
-      return http.response();
-    })
-
-    await requests.listen();
-    await requests.close();
-
-  } catch (e) {
-    return e;
-  }
-}
-
 async function requestBodyParserURLencodedTest() {
   const description = `URL encoded body content
   will be parsed into an object`;
 
   try {
     const requests = http.server();
-    requests.route('POST', '/', (req, meta) => {
-
+    requests.route(POST, '/', (req, meta) => {
       assert.equal(
         typeof req.body,
         'object'
       );
-
       assert.deepEqual(
         { name: 'charlotte' },
         req.body,
       );
-
     })
 
     await requests.listen();
@@ -166,11 +143,13 @@ async function requestBodyParserURLencodedTest() {
     params.append('name', 'charlotte');
     await fetch(`http://0.0.0.0:${requests.port()}`, {
       method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded'
+      },
       body: params,
     });
 
     await requests.close();
-
   } catch (e) {
     return e;
   }
@@ -182,7 +161,7 @@ async function requestBodyParserJsonTest() {
 
   try {
     const requests = http.server();
-    requests.route('POST', '/', (req, meta) => {
+    requests.route(POST, '/', (req, meta) => {
 
       assert.equal(
         typeof req.body,
@@ -198,7 +177,7 @@ async function requestBodyParserJsonTest() {
 
     await requests.listen();
 
-    await fetch(`http://0.0.0.0:${requests.port()}`, {
+    const res = await fetch(`http://0.0.0.0:${requests.port()}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: 'wilbur' }),
@@ -217,14 +196,14 @@ async function requestUrlTest() {
 
   try {
     const requests = http.server();
-    requests.route('GET', '/', (req, meta) => {
+    requests.route(GET, '/', (req, meta) => {
       assert.equal(
         req.url,
         '/?idea=special'
       );
     })
     await requests.listen();
-    const response = await fetch(`http://0.0.0.0:${requests.port()}/?idea=special`);
+    await fetch(`http://0.0.0.0:${requests.port()}/?idea=special`);
     await requests.close();
   } catch (e) {
     return e;
@@ -279,7 +258,8 @@ async function requestRedirectTest() {
       const location = `http://0.0.0.0:${second.port()}`;
       return http.response({
         status: 307,
-        headers: { location }
+        headers: { location },
+        body: '',
       })
     })
 
@@ -307,22 +287,18 @@ async function defaultBodyTest() {
 
   try {
     const requests = http.server();
-    requests.route('GET', '/200', () => http.response({ status: 200 }));
-    requests.route('GET', '/201', () => http.response({ status: 201 }));
-    requests.route('GET', '/204', () => http.response({ status: 204 }));
-    requests.route('GET', '/304', () => http.response({ status: 304 }));
-    requests.route('GET', '/400', () => http.response({ status: 400 }));
-    requests.route('GET', '/401', () => http.response({ status: 401 }));
-    requests.route('GET', '/403', () => http.response({ status: 403 }));
-    requests.route('GET', '/404', () => http.response({ status: 404 }));
-    requests.route('GET', '/409', () => http.response({ status: 409 }));
-    requests.route('GET', '/500', () => http.response({ status: 500 }));
+    requests.route('GET', '/200', (req, meta) => 200);
+    requests.route('GET', '/201', (req, meta) => 201);
+    requests.route('GET', '/400', (req, meta) => 400);
+    requests.route('GET', '/401', (req, meta) => 401);
+    requests.route('GET', '/403', (req, meta) => 403);
+    requests.route('GET', '/404', (req, meta) => 404);
+    requests.route('GET', '/409', (req, meta) => 409);
+    requests.route('GET', '/500', (req, meta) => 500);
 
     await requests.listen();
     assert.equal('OK', await (await fetch(`http://0.0.0.0:${requests.port()}/200`)).text());
     assert.equal('Created', await (await fetch(`http://0.0.0.0:${requests.port()}/201`)).text());
-    // assert.equal('No Content', await (await fetch(`http://0.0.0.0:${requests.port()}/204`)).text());
-    // assert.equal('Not Modified', await (await fetch(`http://0.0.0.0:${requests.port()}/304`)).text());
     assert.equal('Bad Request', await (await fetch(`http://0.0.0.0:${requests.port()}/400`)).text());
     assert.equal('Unauthorized', await (await fetch(`http://0.0.0.0:${requests.port()}/401`)).text());
     assert.equal('Forbidden', await (await fetch(`http://0.0.0.0:${requests.port()}/403`)).text());
@@ -341,14 +317,14 @@ async function responseShortHandTest() {
 
   try {
     const requests = http.server();
-    requests.route('GET', '/num', () => 200);
-    requests.route('GET', '/numbad', () => 400);
-    requests.route('GET', '/str', () => 'hello');
-    requests.route('GET', '/obj', () => ({ data: 'success' }));
+    requests.route('GET', '/num', (req, meta) => 200);
+    requests.route('GET', '/bad', (req, meta) => 400);
+    requests.route('GET', '/str', (req, meta) => 'hello');
+    requests.route('GET', '/obj', (req, meta) => ({ data: 'success' }));
 
     await requests.listen();
     assert.equal('OK', await (await fetch(`http://0.0.0.0:${requests.port()}/num`)).text());
-    assert.equal('Bad Request', await (await fetch(`http://0.0.0.0:${requests.port()}/numbad`)).text());
+    assert.equal('Bad Request', await (await fetch(`http://0.0.0.0:${requests.port()}/bad`)).text());
     assert.equal('hello', await (await fetch(`http://0.0.0.0:${requests.port()}/str`)).text());
     assert.deepEqual({ data: 'success' }, await (await fetch(`http://0.0.0.0:${requests.port()}/obj`)).json());
     await requests.close();
