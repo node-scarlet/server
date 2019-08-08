@@ -1,6 +1,6 @@
 {
   "name": "@node-scarlet/http",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Intuitive webserver built for rapid development",
   "main": "dist/http.js",
   "scripts": {
