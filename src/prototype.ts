@@ -81,6 +81,15 @@ function listen(port=0) {
   this.s.listen(port);
 }
 
+function isResponse(obj) {
+  return (
+    Number.isInteger(obj['status'])
+    && typeof obj['headers'] == 'object'
+    && typeof obj['body'] == 'string'
+    && Object.keys(obj).length == 3
+  );
+}
+
 function responseShorthand(response) {
   if (typeof response == 'string') {
     return Object.freeze({
@@ -94,6 +103,13 @@ function responseShorthand(response) {
       status: response,
       headers: { 'content-type': 'text/plain' },
       body: statusCodes[response]
+    })
+  }
+  else if (typeof response == 'object' && !isResponse(response)) {
+    return Object.freeze({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(response),
     })
   }
   else return response;
@@ -177,11 +193,9 @@ export const methods = {
   DELETE: 'DELETE'
 }
 
-const statusCodes = {
+const statusMessages = {
   200: 'OK',
   201: 'Created',
-  204: 'No Content',
-  304: 'Not Modified',
   400: 'Bad Request',
   401: 'Unauthorized',
   403: 'Forbidden',

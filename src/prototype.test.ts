@@ -14,8 +14,8 @@ export const tests = [
   requestUrlTest,
   requestQueryTest,
   requestRedirectTest,
-  // defaultBodyTest,
-  // responseShortHandTest,
+  defaultBodyTest,
+  responseShortHandTest,
 ];
 
 async function portZeroTest() {
@@ -281,58 +281,54 @@ async function requestRedirectTest() {
   }
 }
 
-// async function defaultBodyTest() {
-//   const description = `If a response has a status but no
-//   body, the status code message should be the body`;
+async function defaultBodyTest() {
+  const description = `If a response has a status but no
+  body, the status code message should be the body`;
 
-//   try {
-//     const requests = http.server();
-//     requests.route('GET', '/200', () => http.response({ status: 200 }));
-//     requests.route('GET', '/201', () => http.response({ status: 201 }));
-//     requests.route('GET', '/204', () => http.response({ status: 204 }));
-//     requests.route('GET', '/304', () => http.response({ status: 304 }));
-//     requests.route('GET', '/400', () => http.response({ status: 400 }));
-//     requests.route('GET', '/401', () => http.response({ status: 401 }));
-//     requests.route('GET', '/403', () => http.response({ status: 403 }));
-//     requests.route('GET', '/404', () => http.response({ status: 404 }));
-//     requests.route('GET', '/409', () => http.response({ status: 409 }));
-//     requests.route('GET', '/500', () => http.response({ status: 500 }));
+  try {
+    const requests = http.server();
+    requests.route('GET', '/200', (req, meta) => 200);
+    requests.route('GET', '/201', (req, meta) => 201);
+    requests.route('GET', '/400', (req, meta) => 400);
+    requests.route('GET', '/401', (req, meta) => 401);
+    requests.route('GET', '/403', (req, meta) => 403);
+    requests.route('GET', '/404', (req, meta) => 404);
+    requests.route('GET', '/409', (req, meta) => 409);
+    requests.route('GET', '/500', (req, meta) => 500);
 
-//     await requests.listen();
-//     assert.equal('OK', await (await fetch(`http://0.0.0.0:${requests.port()}/200`)).text());
-//     assert.equal('Created', await (await fetch(`http://0.0.0.0:${requests.port()}/201`)).text());
-//     // assert.equal('No Content', await (await fetch(`http://0.0.0.0:${requests.port()}/204`)).text());
-//     // assert.equal('Not Modified', await (await fetch(`http://0.0.0.0:${requests.port()}/304`)).text());
-//     assert.equal('Bad Request', await (await fetch(`http://0.0.0.0:${requests.port()}/400`)).text());
-//     assert.equal('Unauthorized', await (await fetch(`http://0.0.0.0:${requests.port()}/401`)).text());
-//     assert.equal('Forbidden', await (await fetch(`http://0.0.0.0:${requests.port()}/403`)).text());
-//     assert.equal('Not Found', await (await fetch(`http://0.0.0.0:${requests.port()}/404`)).text());
-//     assert.equal('Conflict', await (await fetch(`http://0.0.0.0:${requests.port()}/409`)).text());
-//     assert.equal('Internal Server Error', await (await fetch(`http://0.0.0.0:${requests.port()}/500`)).text());
-//     await requests.close();
-//   } catch (e) {
-//     return e;
-//   }
-// }
+    await requests.listen();
+    assert.equal('OK', await (await fetch(`http://0.0.0.0:${requests.port()}/200`)).text());
+    assert.equal('Created', await (await fetch(`http://0.0.0.0:${requests.port()}/201`)).text());
+    assert.equal('Bad Request', await (await fetch(`http://0.0.0.0:${requests.port()}/400`)).text());
+    assert.equal('Unauthorized', await (await fetch(`http://0.0.0.0:${requests.port()}/401`)).text());
+    assert.equal('Forbidden', await (await fetch(`http://0.0.0.0:${requests.port()}/403`)).text());
+    assert.equal('Not Found', await (await fetch(`http://0.0.0.0:${requests.port()}/404`)).text());
+    assert.equal('Conflict', await (await fetch(`http://0.0.0.0:${requests.port()}/409`)).text());
+    assert.equal('Internal Server Error', await (await fetch(`http://0.0.0.0:${requests.port()}/500`)).text());
+    await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
 
-// async function responseShortHandTest() {
-//   const description = `Handlers can return status codes, strings,
-//   and objects as a shortcut`;
+async function responseShortHandTest() {
+  const description = `Handlers can return status codes, strings,
+  and objects as a shortcut`;
 
-//   try {
-//     const requests = http.server();
-//     requests.route('GET', '/num', () => 200);
-//     requests.route('GET', '/numbad', () => 400);
-//     requests.route('GET', '/str', () => 'hello');
-//     requests.route('GET', '/obj', () => ({ data: 'success' }));
+  try {
+    const requests = http.server();
+    requests.route('GET', '/num', (req, meta) => 200);
+    requests.route('GET', '/bad', (req, meta) => 400);
+    requests.route('GET', '/str', (req, meta) => 'hello');
+    requests.route('GET', '/obj', (req, meta) => ({ data: 'success' }));
 
-//     await requests.listen();
-//     assert.equal('OK', await (await fetch(`http://0.0.0.0:${requests.port()}/num`)).text());
-//     assert.equal('Bad Request', await (await fetch(`http://0.0.0.0:${requests.port()}/numbad`)).text());
-//     assert.equal('hello', await (await fetch(`http://0.0.0.0:${requests.port()}/str`)).text());
-//     assert.deepEqual({ data: 'success' }, await (await fetch(`http://0.0.0.0:${requests.port()}/obj`)).json());
-//     await requests.close();
-//   } catch (e) {
-//     return e;
-//   }
-// }
+    await requests.listen();
+    assert.equal('OK', await (await fetch(`http://0.0.0.0:${requests.port()}/num`)).text());
+    assert.equal('Bad Request', await (await fetch(`http://0.0.0.0:${requests.port()}/bad`)).text());
+    assert.equal('hello', await (await fetch(`http://0.0.0.0:${requests.port()}/str`)).text());
+    assert.deepEqual({ data: 'success' }, await (await fetch(`http://0.0.0.0:${requests.port()}/obj`)).json());
+    await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
