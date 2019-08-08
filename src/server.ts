@@ -152,10 +152,6 @@ function middleware(method, urlpattern, handler) {
   }
 }
 
-function requestMatchesHandler(req, middleware) {
-  // ...
-}
-
 function route(method, urlpattern, handler) {
   method = method.toUpperCase();
   if (!methods[method]) throw new Error(`Unsupported verb "${method}".`);
