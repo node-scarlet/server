@@ -63,13 +63,14 @@ function listen(port=0) {
         
       // See if any middleware matches the incoming request
       for (const m of this.middlewares[method]) {
-        const match = m.match(path);
+        let match;
+        try {
+          match = m.match(path);
+        } catch (e) { continue }
         if (match) {
           request.params = match;
           const response = m.handler(request, meta);
-          if (response) {
-            return adaptResponse(response, res);
-          }
+          if (response) return adaptResponse(response, res);
         }
       }
 

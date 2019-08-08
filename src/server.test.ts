@@ -16,6 +16,7 @@ export const tests = [
   requestRedirectTest,
   defaultBodyTest,
   responseShortHandTest,
+  partialMatchTest,
 ];
 
 async function portZeroTest() {
@@ -328,6 +329,28 @@ async function responseShortHandTest() {
     assert.equal('hello', await (await fetch(`http://0.0.0.0:${requests.port()}/str`)).text());
     assert.deepEqual({ data: 'success' }, await (await fetch(`http://0.0.0.0:${requests.port()}/obj`)).json());
     await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
+
+async function partialMatchTest() {
+  const description = `Errors thrown by url matching
+  are caught, and the middleware that caused it is ignored`;
+
+  try {
+    const requests = http.server();
+    // Notice the orphaned paren in the pattern
+    requests.route('GET', '/cache/set/:key)', (req, meta) => 200);
+    await requests.listen();
+
+    const triggerMalformedRoute = async () => {
+      const response = await fetch(`http://0.0.0.0:${requests.port()}/cache/set/hello`);
+      await requests.close();
+    }
+
+    await assert.doesNotThrow(triggerMalformedRoute);
+
   } catch (e) {
     return e;
   }
