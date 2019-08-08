@@ -69,7 +69,7 @@ function listen(port=0) {
         } catch (e) { continue }
         if (match) {
           request.params = match;
-          const response = m.handler(request, meta);
+          const response = await m.handler(request, meta);
           if (response) return adaptResponse(response, res);
         }
       }

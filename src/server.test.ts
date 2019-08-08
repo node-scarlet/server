@@ -17,6 +17,7 @@ export const tests = [
   defaultBodyTest,
   responseShortHandTest,
   partialMatchTest,
+  asyncHandlerTest,
 ];
 
 async function portZeroTest() {
@@ -355,3 +356,21 @@ async function partialMatchTest() {
     return e;
   }
 }
+
+async function asyncHandlerTest() {
+  const description = `Promises returned by Handlers should be
+  valid material for http responses`;
+
+  try {
+    const requests = http.server();
+    requests.route('GET', '/*', async (req, meta) => 'Hello!');
+    await requests.listen();
+
+    const response = await fetch(`http://0.0.0.0:${requests.port()}`);
+    assert.equal(await response.text(), 'Hello!');
+    await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
+
