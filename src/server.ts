@@ -82,15 +82,6 @@ function listen(port=0) {
   this.s.listen(port);
 }
 
-function isResponse(obj) {
-  return (
-    Number.isInteger(obj['status'])
-    && typeof obj['headers'] == 'object'
-    && typeof obj['body'] == 'string'
-    && Object.keys(obj).length == 3
-  );
-}
-
 function responseShorthand(response) {
   if (typeof response == 'string') {
     return Object.freeze({
@@ -106,7 +97,7 @@ function responseShorthand(response) {
       body: statusMessages[response]
     })
   }
-  else if (typeof response == 'object' && !isResponse(response)) {
+  else if (typeof response == 'object' && !(response instanceof Response)) {
     return Object.freeze({
       status: 200,
       headers: { 'content-type': 'application/json' },
@@ -168,19 +159,24 @@ function methodStacks() {
   }
 }
 
-export function response(options:any={}) {
-  let provided:any = {};
-  if (options.status) provided.status = options.status;
-  if (options.headers) provided.headers = options.headers;
-  if (options.body) provided.body = options.body;
-  const defaults = {
-    status: 200,
-    headers: {},
-    body: '',
+class Response {
+  status?: number;
+  headers?: object;
+  body?: object | string;
+  constructor(options) {
+    if (options.status) this.status = options.status;
+    else this.status = 200;
+
+    if (options.headers) this.headers = options.headers;
+    else this.headers = {};
+    
+    if (options.body !== undefined) this.body = options.body;
+    else this.body = '';
   }
-  return Object.freeze(
-    Object.assign(defaults, options)
-  );
+}
+
+export function response(options:any={}) {
+  return new Response(options);
 }
 
 export const methods = {

@@ -18,6 +18,7 @@ export const tests = [
   responseShortHandTest,
   partialMatchTest,
   asyncHandlerTest,
+  nullBodyTest,
 ];
 
 async function portZeroTest() {
@@ -54,7 +55,6 @@ async function defaultHeadersTest() {
     await requests.listen();
     
     // Make A request to the server defined above
-    let body = ''
     const res = await fetch(`http://0.0.0.0:${requests.port()}`);
     assert.equal(res.status, 200);
 
@@ -368,6 +368,28 @@ async function asyncHandlerTest() {
 
     const response = await fetch(`http://0.0.0.0:${requests.port()}`);
     assert.equal(await response.text(), 'Hello!');
+    await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
+
+async function nullBodyTest() {
+  const description = `Null body values
+  are valid response material`;
+
+  try {
+    const requests = http.server();
+    requests.route('GET', '/*', async (req, meta) => {
+      return http.response({
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(null),
+      });
+    });
+    await requests.listen();
+
+    const response = await fetch(`http://0.0.0.0:${requests.port()}`);
+    assert.deepEqual(await response.json(), null);
     await requests.close();
   } catch (e) {
     return e;
