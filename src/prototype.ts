@@ -98,11 +98,11 @@ function responseShorthand(response) {
       body: response 
     })
   }
-  else if (typeof response == 'number' && statusCodes[response]) {
+  else if (typeof response == 'number' && statusMessages[response]) {
     return Object.freeze({
       status: response,
       headers: { 'content-type': 'text/plain' },
-      body: statusCodes[response]
+      body: statusMessages[response]
     })
   }
   else if (typeof response == 'object' && !isResponse(response)) {
