@@ -11,17 +11,18 @@ import { Http2ServerRequest } from 'http2';
 
 /**
  * 
+ * Adapts `HttpResponse` it to its lower level counterpart`http.ServerResponse`
  * @param response 
  * @param res 
  */
-function adaptResponse(response, res) {
-  response = responseShorthand(response);
-  const { status, headers, body } = response;
-  res.writeHead(status, {
+function adaptResponse(input, output) {
+  input = responseShorthand(input);
+  const { status, headers, body } = input;
+  output.writeHead(status, {
     'Content-Length': Buffer.byteLength(body),
     ...headers,
   })
-  res.end(body);
+  output.end(body);
 }
 
 /**
