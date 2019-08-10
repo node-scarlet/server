@@ -1,13 +1,7 @@
-/**
- * Prototype: Rewrite module with the http module from the Node standard lib
- */
 import * as http from 'http';
 import * as qs from 'querystring';
 import * as UrlPattern from 'url-pattern';
 import { promisify } from 'util';
-import { Http2ServerRequest } from 'http2';
-
-// Convert a `HttpResponse` shaped object to a `res` shaped one
 
 /**
  * 
