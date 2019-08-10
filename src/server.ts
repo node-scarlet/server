@@ -9,7 +9,7 @@ import { promisify } from 'util';
  * @param response 
  * @param res 
  */
-function adaptResponse(input, output) {
+function adaptResponse(input:HttpResponse, output:http.ServerResponse) {
   const { status, headers, body } = input;
   output.writeHead(status, {
     'Content-Length': Buffer.byteLength(body),
@@ -40,7 +40,7 @@ const asyncBody = promisify(function(req:http.IncomingMessage, callback) {
  * Create an Http Server and start listening for requests
  */
 function listen(port:number=0) {
-  this._server = http.createServer(async (req:http.IncomingMessage, res:http.OutgoingMessage) => {
+  this._server = http.createServer(async (req:http.IncomingMessage, res:http.ServerResponse) => {
     try {
       // Separate data
       const { url, method, headers } = req;
@@ -178,7 +178,7 @@ function methodStacks() {
 class HttpResponse {
   status?: number;
   headers?: object;
-  body?: object | string;
+  body?: string;
   constructor(options) {
     const { status, headers, body } = options;
     this.status = status ? status : 200;
