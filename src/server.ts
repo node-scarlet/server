@@ -9,7 +9,10 @@ import { promisify } from 'util';
  * @param response 
  * @param res 
  */
-function adaptResponse(input:HttpResponse, output:http.ServerResponse) {
+function adaptResponse(
+  input:HttpResponse,
+  output:http.ServerResponse
+) {
   const { status, headers, body } = input;
   output.writeHead(status, {
     'Content-Length': Buffer.byteLength(body),
@@ -19,7 +22,7 @@ function adaptResponse(input:HttpResponse, output:http.ServerResponse) {
 }
 
 /**
- * Get the body of an http request asyncronously
+ * Get stringified request body asyncronously
  * @param {http.IncomingMessage} req
  * @returns {Promise}
  */
@@ -97,7 +100,10 @@ function listen(port:number=0) {
   this._server.listen(port);
 }
 
-function responseShorthand(response) {
+/**
+ * Convert primitive response types into intances of `HttpResponse`
+ */
+function responseShorthand(response:any):HttpResponse {
   if (typeof response == 'string') {
     return Object.freeze({
       status: 200,
