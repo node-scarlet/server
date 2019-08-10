@@ -3,6 +3,21 @@ import * as qs from 'querystring';
 import * as UrlPattern from 'url-pattern';
 import { promisify } from 'util';
 
+export function server() {
+  return new HttpServer();
+}
+
+export function response(options:any={}) {
+  return new HttpResponse(options);
+}
+
+export const methods = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE'
+}
+
 /**
  * 
  * Adapts `HttpResponse` it to its lower level counterpart`http.ServerResponse`
@@ -136,7 +151,7 @@ function port() {
   return this._server.address().port;
 }
 
-class Server {
+class HttpServer {
   private _server:http.Server;
   listen;
   close;
@@ -147,13 +162,15 @@ class Server {
     this.listen = listen.bind(this)
     this.close = close.bind(this)
     this.port = port.bind(this)
-    this.middlewares = methodStacks();
     this.route = route.bind(this);
+    this.middlewares = {
+      GET: [],
+      PUT: [],
+      POST: [],
+      PATCH: [],
+      DELETE: [],
+    }
   }
-}
-
-export function server() {
-  return new Server();
 }
 
 class Middleware {
@@ -175,16 +192,6 @@ function route(method, urlpattern, handler) {
   this.middlewares[method].push(new Middleware(method, urlpattern, handler));
 }
 
-function methodStacks() {
-  return {
-    GET: [],
-    PUT: [],
-    POST: [],
-    PATCH: [],
-    DELETE: [],
-  }
-}
-
 class HttpResponse {
   status?: number;
   headers?: object;
@@ -195,17 +202,6 @@ class HttpResponse {
     this.headers = headers ? headers: {};
     this.body = body != undefined ? body: '';
   }
-}
-
-export function response(options:any={}) {
-  return new HttpResponse(options);
-}
-
-export const methods = {
-  GET: 'GET',
-  PUT: 'PUT',
-  POST: 'POST',
-  DELETE: 'DELETE'
 }
 
 const statusMessages = {
