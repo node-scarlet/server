@@ -5,8 +5,15 @@ import * as http from 'http';
 import * as qs from 'querystring';
 import * as UrlPattern from 'url-pattern';
 import { promisify } from 'util';
+import { Http2ServerRequest } from 'http2';
 
-// Convert a `response` shaped object to a `res` shaped one
+// Convert a `HttpResponse` shaped object to a `res` shaped one
+
+/**
+ * 
+ * @param response 
+ * @param res 
+ */
 function adaptResponse(response, res) {
   response = responseShorthand(response);
   const { status, headers, body } = response;
@@ -17,7 +24,12 @@ function adaptResponse(response, res) {
   res.end(body);
 }
 
-const asyncBody = promisify(function(req, callback) {
+/**
+ * Get the body of an http request asyncronously
+ * @param {http.IncomingMessage} req
+ * @returns {Promise}
+ */
+const asyncBody = promisify(function(req:http.IncomingMessage, callback) {
   let body = '';
   req.on('data', chunk => {
       body += chunk.toString();
@@ -30,8 +42,11 @@ const asyncBody = promisify(function(req, callback) {
   })
 });
 
-function listen(port=0) {
-  this.s = http.createServer(async (req, res) => {
+/**
+ * Create an Http Server and start listening for requests
+ */
+function listen(port:number=0) {
+  this._server = http.createServer(async (req:http.IncomingMessage, res:http.OutgoingMessage) => {
     try {
       // Separate data
       const { url, method, headers } = req;
@@ -41,12 +56,12 @@ function listen(port=0) {
       // Parse Querystring
       const query = Object.assign({}, qs.decode(querystring));
 
-      // Parse JSON Body
+      // Try to parse JSON data
       if (headers['content-type'] == 'application/json') {
         try { body = JSON.parse(body) }
         catch (e) {}
       }
-      // Parse URL-Encoded Body
+      // Try to parse URL-Encoded data
       else if (headers['content-type'] == 'application/x-www-form-urlencoded') {
         body = Object.assign({}, qs.decode(body));
       }
@@ -63,10 +78,13 @@ function listen(port=0) {
         
       // See if any middleware matches the incoming request
       for (const m of this.middlewares[method]) {
+
         let match;
         try {
+          // Some urlpatterns will throw errors
           match = m.match(path);
         } catch (e) { continue }
+
         if (match) {
           request.params = match;
           const response = await m.handler(request, meta);
@@ -79,7 +97,7 @@ function listen(port=0) {
       adaptResponse(notFoundResponse, res);
     } catch (e) { throw e }
   });
-  this.s.listen(port);
+  this._server.listen(port);
 }
 
 function responseShorthand(response) {
@@ -97,7 +115,7 @@ function responseShorthand(response) {
       body: statusMessages[response]
     })
   }
-  else if (typeof response == 'object' && !(response instanceof Response)) {
+  else if (typeof response == 'object' && !(response instanceof HttpResponse)) {
     return Object.freeze({
       status: 200,
       headers: { 'content-type': 'application/json' },
@@ -108,14 +126,15 @@ function responseShorthand(response) {
 }
 
 function close() {
-  this.s.close();
+  this._server.close();
 }
 
 function port() {
-  return this.s.address().port;
+  return this._server.address().port;
 }
 
 class Server {
+  private _server:http.Server;
   listen;
   close;
   port;
@@ -159,7 +178,7 @@ function methodStacks() {
   }
 }
 
-class Response {
+class HttpResponse {
   status?: number;
   headers?: object;
   body?: object | string;
@@ -172,7 +191,7 @@ class Response {
 }
 
 export function response(options:any={}) {
-  return new Response(options);
+  return new HttpResponse(options);
 }
 
 export const methods = {
