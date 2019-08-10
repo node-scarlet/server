@@ -10,7 +10,6 @@ import { promisify } from 'util';
  * @param res 
  */
 function adaptResponse(input, output) {
-  input = responseShorthand(input);
   const { status, headers, body } = input;
   output.writeHead(status, {
     'Content-Length': Buffer.byteLength(body),
@@ -83,7 +82,10 @@ function listen(port:number=0) {
         if (match) {
           request.params = match;
           const response = await m.handler(request, meta);
-          if (response) return adaptResponse(response, res);
+          if (response) {
+            const adaptable = responseShorthand(response);
+            return adaptResponse(adaptable, res);
+          }
         }
       }
 
