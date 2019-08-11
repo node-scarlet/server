@@ -1,8 +1,8 @@
-# Build APIs Instantly
-Serve [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages) in seconds with URL routing out of the box.
+# Build APIs Instantly 🏋️‍♂️
+Serve [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages) in seconds with URL routing out of the box 👌
 
 ## Down to business
-The *almost* simplest possible example:
+The *almost* 👏 simplest possible example:
 Run the program, and visit `localhost:5000` in your browser to see things in action!
 
 ```JS
