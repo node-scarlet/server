@@ -1,5 +1,5 @@
 # The Fastest API Module for Node
-Serve [HTTP Requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages) in seconds with URL routing out of the box.
+Serve [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages) in seconds with URL routing out of the box.
 
 ## Down to business
 The *almost* simplest possible example:
@@ -23,9 +23,9 @@ requests.listen(5000);
 * **handler**: A function that determines how the route should respond to requests that it applies to.
 
 ## Handler Functions
-Request handler functions use `req` and `meta` to determine how to react to incoming requests. If they return a truthy value, the server will use it to respond.
+Request handler functions use `req` and `meta` to determine how to react to incoming requests. If they return a truthy value, that value will be used to respond.
 * For simple responses, you can use a `string` or `object` as a return type
-* Use `http.response()` to have richer control over [status](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status), [headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers), and [body](https://en.wikipedia.org/wiki/HTTP_message_body).
+* Use `http.response()` to have richer control over the [status](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status), [headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers), and [body](https://en.wikipedia.org/wiki/HTTP_message_body).
 
 ```JS
 // handlers.js
