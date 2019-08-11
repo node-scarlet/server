@@ -18,14 +18,14 @@ export const methods = {
 
 class HttpServer {
   private _server:http.Server;
-  listen;
-  close;
+  start;
+  stop;
   port;
   middlewares;
   route;
   constructor() {
-    this.listen = listen.bind(this)
-    this.close = close.bind(this)
+    this.start = start.bind(this)
+    this.stop = stop.bind(this)
     this.port = port.bind(this)
     this.route = route.bind(this);
     this.middlewares = {
@@ -39,10 +39,10 @@ class HttpServer {
 }
 
 /**
- * Create an Http Server and start listening for requests
+ * Create an Http Server and start starting for requests
  * Bound as a method to  `HttpServer`
  */
-function listen(port:number=0) {
+function start(port:number=0) {
   this._server = http.createServer(async (req:http.IncomingMessage, res:http.ServerResponse) => {
     try {
       // Separate data
@@ -100,10 +100,10 @@ function listen(port:number=0) {
   this._server.listen(port);
 }
 /**
- * Stop listening for http requests
+ * Stop starting for http requests
  * Bound as a method to  `HttpServer`
  */
-function close() {
+function stop() {
   this._server.close();
 }
 /**
@@ -115,7 +115,7 @@ function port() {
 }
 /**
  * Adapts `HttpResponse` it to its lower level counterpart`http.ServerResponse`.
- * A helper function of `HttpServer.listen()`
+ * A helper function of `HttpServer.start()`
  */
 function adaptResponse(
   input:HttpResponse,
@@ -147,7 +147,7 @@ const asyncBody = promisify(function(req:http.IncomingMessage, callback) {
 });
 /**
  * Convert primitive response types into intances of `HttpResponse`
- * A helper function of `HttpServer.listen()`
+ * A helper function of `HttpServer.start()`
  */
 function responseShorthand(response:any):HttpResponse {
   if (typeof response == 'string') {

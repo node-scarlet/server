@@ -27,9 +27,9 @@ async function portZeroTest() {
 
   try {
     const requests = http.server();
-    await requests.listen();
+    await requests.start();
     assert(requests.port());
-    await requests.close();
+    await requests.stop();
 
     return true;
 
@@ -52,7 +52,7 @@ async function defaultHeadersTest() {
         body: ''
       })
     })
-    await requests.listen();
+    await requests.start();
     
     // Make A request to the server defined above
     const res = await fetch(`http://0.0.0.0:${requests.port()}`);
@@ -63,7 +63,7 @@ async function defaultHeadersTest() {
     assert.ok(res.headers.get('date'));
     assert.ok(res.headers.get('content-length'));
     assert.equal(res.headers.get('connection'), 'close');
-    await requests.close();
+    await requests.stop();
 
   } catch (e) {
     return e;
@@ -87,13 +87,13 @@ async function handlerMetaTest() {
         body: 'Wilber didn\'t want food. He wanted ' + meta.desire,
       })
     })
-    await requests.listen();
+    await requests.start();
     
     // Make A request to the server defined above
     const res = await fetch(`http://0.0.0.0:${requests.port()}`);
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'Wilber didn\'t want food. He wanted love');
-    await requests.close();
+    await requests.stop();
   }
 
   catch (e) {
@@ -139,7 +139,7 @@ async function requestBodyParserURLencodedTest() {
       );
     })
 
-    await requests.listen();
+    await requests.start();
 
     const params = new URLSearchParams();
     params.append('name', 'charlotte');
@@ -151,7 +151,7 @@ async function requestBodyParserURLencodedTest() {
       body: params,
     });
 
-    await requests.close();
+    await requests.stop();
   } catch (e) {
     return e;
   }
@@ -177,7 +177,7 @@ async function requestBodyParserJsonTest() {
 
     })
 
-    await requests.listen();
+    await requests.start();
 
     const res = await fetch(`http://0.0.0.0:${requests.port()}`, {
       method: 'POST',
@@ -185,7 +185,7 @@ async function requestBodyParserJsonTest() {
       body: JSON.stringify({ name: 'wilbur' }),
     });
 
-    await requests.close();
+    await requests.stop();
 
   } catch (e) {
     return e;
@@ -204,9 +204,9 @@ async function requestUrlTest() {
         '/?idea=special'
       );
     })
-    await requests.listen();
+    await requests.start();
     await fetch(`http://0.0.0.0:${requests.port()}/?idea=special`);
-    await requests.close();
+    await requests.stop();
   } catch (e) {
     return e;
   }
@@ -238,11 +238,11 @@ async function requestQueryTest() {
         JSON.stringify({ long: 'about', 'a saturday': 'night' })
       );
     })
-    await requests.listen();
+    await requests.start();
     await fetch(`http://0.0.0.0:${requests.port()}/thinking?splish=splash`);
     await fetch(`http://0.0.0.0:${requests.port()}/everything/was?i=was&taking=a%20bath`);
     await fetch(`http://0.0.0.0:${requests.port()}/alright?long=about&a%20saturday=night`);
-    await requests.close();
+    await requests.stop();
   } catch (e) {
     return e;
   }
@@ -267,8 +267,8 @@ async function requestRedirectTest() {
 
     second.route('GET', '/', (req, meta) => 'Success!')
 
-    await first.listen();
-    await second.listen();
+    await first.start();
+    await second.start();
 
     const response = await fetch(`http://0.0.0.0:${first.port()}`);
     assert.equal(
@@ -276,8 +276,8 @@ async function requestRedirectTest() {
       'Success!'
     );
 
-    await first.close();
-    await second.close();
+    await first.stop();
+    await second.stop();
   } catch (e) {
     return e;
   }
@@ -298,7 +298,7 @@ async function defaultBodyTest() {
     requests.route('GET', '/409', (req, meta) => 409);
     requests.route('GET', '/500', (req, meta) => 500);
 
-    await requests.listen();
+    await requests.start();
     assert.equal('OK', await (await fetch(`http://0.0.0.0:${requests.port()}/200`)).text());
     assert.equal('Created', await (await fetch(`http://0.0.0.0:${requests.port()}/201`)).text());
     assert.equal('Bad Request', await (await fetch(`http://0.0.0.0:${requests.port()}/400`)).text());
@@ -307,7 +307,7 @@ async function defaultBodyTest() {
     assert.equal('Not Found', await (await fetch(`http://0.0.0.0:${requests.port()}/404`)).text());
     assert.equal('Conflict', await (await fetch(`http://0.0.0.0:${requests.port()}/409`)).text());
     assert.equal('Internal Server Error', await (await fetch(`http://0.0.0.0:${requests.port()}/500`)).text());
-    await requests.close();
+    await requests.stop();
   } catch (e) {
     return e;
   }
@@ -324,12 +324,12 @@ async function responseShortHandTest() {
     requests.route('GET', '/str', (req, meta) => 'hello');
     requests.route('GET', '/obj', (req, meta) => ({ data: 'success' }));
 
-    await requests.listen();
+    await requests.start();
     assert.equal('OK', await (await fetch(`http://0.0.0.0:${requests.port()}/num`)).text());
     assert.equal('Bad Request', await (await fetch(`http://0.0.0.0:${requests.port()}/bad`)).text());
     assert.equal('hello', await (await fetch(`http://0.0.0.0:${requests.port()}/str`)).text());
     assert.deepEqual({ data: 'success' }, await (await fetch(`http://0.0.0.0:${requests.port()}/obj`)).json());
-    await requests.close();
+    await requests.stop();
   } catch (e) {
     return e;
   }
@@ -343,11 +343,11 @@ async function partialMatchTest() {
     const requests = http.server();
     // Notice the orphaned paren in the pattern
     requests.route('GET', '/cache/set/:key)', (req, meta) => 200);
-    await requests.listen();
+    await requests.start();
 
     const triggerMalformedRoute = async () => {
       const response = await fetch(`http://0.0.0.0:${requests.port()}/cache/set/hello`);
-      await requests.close();
+      await requests.stop();
     }
 
     await assert.doesNotThrow(triggerMalformedRoute);
@@ -364,11 +364,11 @@ async function asyncHandlerTest() {
   try {
     const requests = http.server();
     requests.route('GET', '/*', async (req, meta) => 'Hello!');
-    await requests.listen();
+    await requests.start();
 
     const response = await fetch(`http://0.0.0.0:${requests.port()}`);
     assert.equal(await response.text(), 'Hello!');
-    await requests.close();
+    await requests.stop();
   } catch (e) {
     return e;
   }
@@ -386,11 +386,11 @@ async function nullBodyTest() {
         body: JSON.stringify(null),
       });
     });
-    await requests.listen();
+    await requests.start();
 
     const response = await fetch(`http://0.0.0.0:${requests.port()}`);
     assert.deepEqual(await response.json(), null);
-    await requests.close();
+    await requests.stop();
   } catch (e) {
     return e;
   }
