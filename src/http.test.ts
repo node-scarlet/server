@@ -3,6 +3,7 @@ const { URLSearchParams } = require('url');
 import * as http  from './http';
 const { GET, POST } = http.methods;
 import * as fetch from 'node-fetch';
+import { protect } from './handlers';
 
 export const tests = [
   portZeroTest,
@@ -19,6 +20,7 @@ export const tests = [
   partialMatchTest,
   asyncHandlerTest,
   nullBodyTest,
+  handlerOnErrorTest,
 ];
 
 async function portZeroTest() {
@@ -390,6 +392,32 @@ async function nullBodyTest() {
 
     const response = await fetch(`http://0.0.0.0:${requests.port()}`);
     assert.deepEqual(await response.json(), null);
+    await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
+
+async function handlerOnErrorTest() {
+  const description = `Handlers can be wrapped
+  with uniform error handling`;
+
+  try {
+    const asyncHandler = async (req, meta) => {
+      if (req.query.fail) throw new Error('unexpected behavior!');
+      return 'Success!';
+    }
+
+    const protectedAsyncHandler = await protect(asyncHandler);
+
+    const requests = http.server();
+    requests.route('GET', '/*', protectedAsyncHandler)
+    await requests.listen();
+
+    const firstResponse = await fetch(`http://0.0.0.0:${requests.port()}?fail=true`);
+    const secondResponse = await fetch(`http://0.0.0.0:${requests.port()}`);
+    assert.deepEqual(await firstResponse.text(), 'Not Found');
+    assert.deepEqual(await secondResponse.text(), 'Success!');
     await requests.close();
   } catch (e) {
     return e;
