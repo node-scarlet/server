@@ -3,20 +3,8 @@ import * as qs from 'querystring';
 import * as UrlPattern from 'url-pattern';
 import { promisify } from 'util';
 
-export function server() {
-  return new HttpServer();
-}
-
-export function response(options:any={}) {
-  return new HttpResponse(options);
-}
-
-export const methods = {
-  GET: 'GET',
-  PUT: 'PUT',
-  POST: 'POST',
-  DELETE: 'DELETE'
-}
+export const server = () => new HttpServer();
+export const response = (options:any={}) => new HttpResponse(options);
 
 class HttpServer {
   private _server:http.Server;
@@ -39,7 +27,6 @@ class HttpServer {
     }
   }
 }
-
 /**
  * Create an Http Server and start listening for requests
  * Bound as a method to  `HttpServer`
@@ -77,7 +64,6 @@ function listen(port:number=0) {
         
       // See if any middleware matches the incoming request
       for (const m of this.middlewares[method]) {
-
         let match;
         try {
           // Some urlpatterns will throw errors
@@ -93,7 +79,6 @@ function listen(port:number=0) {
           }
         }
       }
-
       // Not Found
       const notFoundResponse = response({ status: 404 })
       adaptResponse(notFoundResponse, res);
@@ -188,13 +173,11 @@ class Middleware {
     this.match = url => new UrlPattern(urlpattern).match(url);
   }
 }
-
 function route(method, urlpattern, handler) {
   method = method.toUpperCase();
   if (!methods[method]) throw new Error(`Unsupported verb "${method}".`);
   this.middlewares[method].push(new Middleware(method, urlpattern, handler));
 }
-
 class HttpResponse {
   status?: number;
   headers?: object;
@@ -206,7 +189,6 @@ class HttpResponse {
     this.body = body != undefined ? body: '';
   }
 }
-
 const statusMessages = {
   200: 'OK',
   201: 'Created',
@@ -216,4 +198,10 @@ const statusMessages = {
   404: 'Not Found',
   409: 'Conflict',
   500: 'Internal Server Error',
+}
+export const methods = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE'
 }
