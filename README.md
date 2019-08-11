@@ -1,23 +1,36 @@
-# About
-This module provides an intuitive interface for creating http servers with Node.
+# The Fastest API Module for Node
+Serve [HTTP Requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages) in seconds with URL routing out of the box.
 
-## Getting Started
-The (almost) simplest possible example:
+## Down to business
+The *almost* simplest possible example:
+Run the program, and visit `localhost:5000` in your browser to see things in action!
 
 ```JS
 const http = require('@node-scarlet/http');
-const { GET } = http.methods;
+const { GET, POST } = http.methods;
 
 const requests = http.server();
 requests.route(GET, '/*', (req, meta) => 'Hello, World!');
-requests.listen(process.env.PORT);
-
+requests.route(POST, '/json', (req, meta) => { success: true });
+requests.start(5000);
 ```
 
-Request handler functions use `req` and `meta` to determine how to react to incoming requests. Return a `string`, `object`, or `http.response()` to respond:
+
+## Routing
+`requests.route()` always takes the same 3 parameters:
+* **method**: The type of [HTTP Method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) the route will apply to. You can use strings like `"GET"`, or you can reference them from `http.methods` as shown above.
+* **urlpattern**: A string that represents which URL paths the route will apply to. The syntax is based on the [url-pattern](https://www.npmjs.com/package/url-pattern) format.
+* **handler**: A function that determines how the route should respond to requests that it applies to.
+
+## Handler Functions
+Request handler functions use `req` and `meta` to determine how to react to incoming requests. If they return a truthy value, the server will use it to respond.
+* For simple responses, you can use a `string` or `object` as a return type
+* Use `http.response()` to have richer control over [status](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status), [headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers), and [body](https://en.wikipedia.org/wiki/HTTP_message_body).
 
 ```JS
-// response shorthand
+// handlers.js
+
+// string/object shorthand
 const saySomething = (req, meta) => 'Hello there!';
 const getJson = (req, meta) => { message: 'anybody listening?' };
 
@@ -30,22 +43,23 @@ const denyAccess = (req, meta) => {
   })
 } 
 ```
-
-The `req` object is made up of the following properties:
-* `method`: The http verb (GET, POST, etc..)that the request was made with
-* `headers`: An object containing header names, and their corresponding values
-* `url`: The full url pathname starting after the domain, E.G: `"/products/hats?id=45&limit=1"`
-* `params`: An object representation of dynamic url segments. A request matching the url pattern `"/products/:type"`, might have a `params` value of `{ type: "hats" }`, or `{ type: "watches" }`.
+### Handler Arguments
+#### `req`
+The `req` argument is short for **"request"**, and has the following properties:
+* `method`: The http verb (GET, POST, etc..)that the request was made with.
+* `headers`: An object containing header names, and their corresponding values.
+* `url`: The full url pathname starting after the domain, E.G: `"/products/hats?id=45&limit=1"`.
+* `params`: An object representation of dynamic url segments. A request matching the url. pattern `"/products/:type"`, might have a `params` value of `{ type: "hats" }`, or `{ type: "watches" }`.
 * `body`: A string representation of the request body.
-* `query`: An object representation of querystring values, E.G: `{ id: "45", limit: 1 }`
-
-The `meta` argument is used to store arbitary data that can be used by other handlers. If a handler doesn't return a response, the request will continue flowing to downstream handlers.
+* `query`: An object representation of querystring values, E.G: `{ id: "45", limit: 1 }`.
+#### `meta`
+`meta` starts off as an empty object, but is intended to be populated with arbitary data that can be used by other handlers. Some handler won't return a response, but instead set properties of `meta` to be used by downstream handlers. One such example might be a handler that authenticates a requester's identity, and stores their account data on `meta`.
 
 ```JS
-
+// handlers.js
 const attachMeta = (req, meta) => {
   meta.desire = req.query.emotion || 'love';
-})
+}
 
 // Utilize the meta value set by attachMeta()
 const emote = (req, meta) => {
@@ -54,16 +68,21 @@ const emote = (req, meta) => {
     headers: {},
     body: 'Wilber didn\'t want food. He wanted ' + meta.desire,
   })
-})
+}
 ```
 
-Route requests to handlers defined above, and start listening for requests:
+## Tying things together
+For organization, you'll typically want to define your request handlers in their own module instead of inline.
 
 ```JS
+const http = require('@node-scarlet/http');
+const { GET, POST } = http.methods;
+const handlers = require('./handlers');
+
 const requests = http.server();
-requests.route(GET, '/', saySomething);
-requests.route(POST, '/secret', denyAccess);
-requests.route(GET, '/*', attachMeta);
-requests.route(GET, '/*', emote);
+requests.route(GET, '/*', handlers.attachMeta);
+requests.route(GET, '/greeting', handlers.saySomething);
+requests.route(POST, '/secrets', handlers.denyAccess);
+requests.route(GET, '/sad/story', handlers.emote);
 requests.listen(5000);
 ```

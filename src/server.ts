@@ -6,9 +6,11 @@ import { promisify } from 'util';
 export function server() {
   return new HttpServer();
 }
+
 export function response(options:any={}) {
   return new HttpResponse(options);
 }
+
 export const methods = {
   GET: 'GET',
   PUT: 'PUT',
@@ -16,6 +18,7 @@ export const methods = {
   DELETE: 'DELETE'
 }
 
+<<<<<<< HEAD
 class HttpServer {
   private _server:http.Server;
   start;
@@ -41,6 +44,46 @@ class HttpServer {
 /**
  * Create an Http Server and start starting for requests
  * Bound as a method to  `HttpServer`
+=======
+/**
+ * 
+ * Adapts `HttpResponse` it to its lower level counterpart`http.ServerResponse`
+ * @param response 
+ * @param res 
+ */
+function adaptResponse(
+  input:HttpResponse,
+  output:http.ServerResponse
+) {
+  const { status, headers, body } = input;
+  output.writeHead(status, {
+    'Content-Length': Buffer.byteLength(body),
+    ...headers,
+  })
+  output.end(body);
+}
+
+/**
+ * Get stringified request body asyncronously
+ * @param {http.IncomingMessage} req
+ * @returns {Promise}
+ */
+const asyncBody = promisify(function(req:http.IncomingMessage, callback) {
+  let body = '';
+  req.on('data', chunk => {
+      body += chunk.toString();
+  });
+  req.on('end', () => {
+      callback(null, body);
+  });
+  req.on('error', (e) => {
+    callback(e);
+  })
+});
+
+/**
+ * Create an Http Server and start listening for requests
+>>>>>>> parent of 4599114... Refactor and comment
  */
 function start(port:number=0) {
   this._server = http.createServer(async (req:http.IncomingMessage, res:http.ServerResponse) => {
@@ -99,6 +142,7 @@ function start(port:number=0) {
   });
   this._server.listen(port);
 }
+<<<<<<< HEAD
 /**
  * Stop starting for http requests
  * Bound as a method to  `HttpServer`
@@ -148,6 +192,11 @@ const asyncBody = promisify(function(req:http.IncomingMessage, callback) {
 /**
  * Convert primitive response types into intances of `HttpResponse`
  * A helper function of `HttpServer.start()`
+=======
+
+/**
+ * Convert primitive response types into intances of `HttpResponse`
+>>>>>>> parent of 4599114... Refactor and comment
  */
 function responseShorthand(response:any):HttpResponse {
   if (typeof response == 'string') {
@@ -173,23 +222,56 @@ function responseShorthand(response:any):HttpResponse {
   }
   else return response;
 }
+
+function close() {
+  this._server.close();
+}
+
+function port() {
+  return this._server.address().port;
+}
+
+class HttpServer {
+  private _server:http.Server;
+  listen;
+  close;
+  port;
+  middlewares;
+  route;
+  constructor() {
+    this.listen = listen.bind(this)
+    this.close = close.bind(this)
+    this.port = port.bind(this)
+    this.route = route.bind(this);
+    this.middlewares = {
+      GET: [],
+      PUT: [],
+      POST: [],
+      PATCH: [],
+      DELETE: [],
+    }
+  }
+}
+
 class Middleware {
-  method:string;
-  urlpattern:string;
+  method: 'string';
+  urlpattern: 'string';
   handler: (req, meta) => any;
   match: (url) => { [key:string]: string };
-  constructor(method:string, urlpattern, handler) {
+  constructor(method, urlpattern, handler) {
     this.method = method;
     this.urlpattern = urlpattern;
     this.handler = handler;
     this.match = url => new UrlPattern(urlpattern).match(url);
   }
 }
+
 function route(method, urlpattern, handler) {
   method = method.toUpperCase();
   if (!methods[method]) throw new Error(`Unsupported verb "${method}".`);
   this.middlewares[method].push(new Middleware(method, urlpattern, handler));
 }
+
 class HttpResponse {
   status?: number;
   headers?: object;
@@ -201,6 +283,7 @@ class HttpResponse {
     this.body = body != undefined ? body: '';
   }
 }
+
 const statusMessages = {
   200: 'OK',
   201: 'Created',
