@@ -6,13 +6,14 @@
   "scripts": {
     "prepublish": "npm run build",
     "build": "npx tsc",
-    "test": "ts-node src/test.ts"
+    "test": "ts-node src/test.ts",
+    "watch": "nodemon --ext .ts --exec 'npm run test'"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/node-scarlet/http.git"
   },
-  "keywords": [],
+  "keywords": ["http", "server", "routes", "router", "api", "scarlet"],
   "author": "craig fay",
   "license": "ISC",
   "devDependencies": {
