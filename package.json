@@ -14,12 +14,14 @@
     "url": "git+https://github.com/node-scarlet/http.git"
   },
   "keywords": [
+    "scarlet",
     "http",
     "server",
+    "route",
     "routes",
     "router",
-    "api",
-    "scarlet"
+    "requests",
+    "api"
   ],
   "author": "craig fay",
   "license": "ISC",
