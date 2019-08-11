@@ -1,6 +1,6 @@
 {
   "name": "@node-scarlet/http",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Intuitive webserver built for rapid development",
   "main": "dist/http.js",
   "scripts": {
@@ -13,7 +13,14 @@
     "type": "git",
     "url": "git+https://github.com/node-scarlet/http.git"
   },
-  "keywords": ["http", "server", "routes", "router", "api", "scarlet"],
+  "keywords": [
+    "http",
+    "server",
+    "routes",
+    "router",
+    "api",
+    "scarlet"
+  ],
   "author": "craig fay",
   "license": "ISC",
   "devDependencies": {
