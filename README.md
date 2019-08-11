@@ -1,4 +1,4 @@
-# The Fastest Way to Build APIs with Node
+# Build APIs Instantly
 Serve [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages) in seconds with URL routing out of the box.
 
 ## Down to business
