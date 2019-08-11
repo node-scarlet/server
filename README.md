@@ -12,7 +12,7 @@ const { GET, POST } = http.methods;
 const requests = http.server();
 requests.route(GET, '/*', (req, meta) => 'Hello, World!');
 requests.route(POST, '/json', (req, meta) => { success: true });
-requests.start(5000);
+requests.listen(5000);
 ```
 
 
