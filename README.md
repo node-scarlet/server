@@ -1,4 +1,4 @@
-# The Fastest API Module for Node
+# The Fastest way to make APIs with Node
 Serve [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages) in seconds with URL routing out of the box.
 
 ## Down to business
