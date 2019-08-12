@@ -26,12 +26,12 @@
   "author": "craig fay",
   "license": "ISC",
   "devDependencies": {
+    "typescript": "^3.5.3",
     "@types/node": "^12.6.8",
     "node-fetch": "^2.6.0",
     "nodemon": "^1.19.1"
   },
   "dependencies": {
-    "typescript": "^3.5.3",
     "url-pattern": "^1.0.3"
   }
 }
