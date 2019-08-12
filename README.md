@@ -96,7 +96,7 @@ Specify which networking port to listen over with `requests.listen()`. If no `po
 Once listening, `requests.port()` will return the active port.
 
 ### Static Files
-"Static" refers to any files that you may want to serve to requesters outright, like `.html`, `.css`, or `.js` files to be consumed by the browser.
+"Static" refers to any file that you may want to serve to requesters outright, like `.html`, `.css`, or `.js` to be consumed by the browser.
 
 In a production environment, Node should rely on a reverse-proxy like Nginx to serve static files, but for small projects or development environments, you can use something like the following.
 
