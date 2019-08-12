@@ -90,12 +90,12 @@ requests.listen(5000);
 ## Stopping Service
 Stop listening for requests with `requests.close()`.
 
-### Ports
+## Ports
 Specify which networking port to listen over with `requests.listen()`. If no `port` argument is provided, a random available port will be chosen.
 
 Once listening, `requests.port()` will return the active port.
 
-### Static Files
+## Static Files
 "Static" refers to any file that you may want to serve to browsers outright, like `.html`, `.css`, or `.js`.
 
 In a production environment, Node should rely on a reverse-proxy like Nginx to serve static files, but for small projects or development environments, you can use something like the following.
