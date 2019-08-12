@@ -94,3 +94,31 @@ Stop listening for requests with `requests.close()`.
 Specify which networking port to listen over with `requests.listen()`. If no `port` argument is provided, a random available port will be chosen.
 
 Once listening, `requests.port()` will return the active port.
+
+### Static Files
+"Static" refers to any files that you may want to serve to requesters outright, like `.html`, `.css`, or `.js` files to be consumed by the browser.
+
+In a production environment, Node should rely on a reverse-proxy like Nginx to serve static files, but for small projects or development environments, you can use something like the following.
+
+Assuming the static file directory is called "public":
+```JS
+import { resolve, join } from 'path'
+import { promisify } from 'util';
+import { readFile } from 'fs';
+const asyncReadFile = promisify(readFile);
+
+/**
+ * Create a handler that will attempt to serve static files
+ * from a given directory path.
+ * 
+ * USAGE:
+ * requests.route(GET, '/*', staticFiles(__dirname + "public"));
+ */
+export const staticFiles = path => {
+  return async (req, meta) => {
+    const filepath = join(resolve(path), req.url);
+    return await asyncReadFile(filepath, 'utf8')
+      .catch(e => undefined);
+  }
+}
+```
