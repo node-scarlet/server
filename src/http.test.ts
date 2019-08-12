@@ -3,8 +3,6 @@ const { URLSearchParams } = require('url');
 import * as http  from './http';
 const { GET, POST } = http.methods;
 import * as fetch from 'node-fetch';
-import { protect } from './handlers';
-import { staticFiles } from './static';
 
 export const tests = [
   portZeroTest,
@@ -21,8 +19,6 @@ export const tests = [
   partialMatchTest,
   asyncHandlerTest,
   nullBodyTest,
-  handlerOnErrorTest,
-  staticFileTest,
 ];
 
 async function portZeroTest() {
@@ -394,52 +390,6 @@ async function nullBodyTest() {
 
     const response = await fetch(`http://0.0.0.0:${requests.port()}`);
     assert.deepEqual(await response.json(), null);
-    await requests.close();
-  } catch (e) {
-    return e;
-  }
-}
-
-async function handlerOnErrorTest() {
-  const description = `Handlers can be wrapped
-  with uniform error handling`;
-
-  try {
-    const asyncHandler = async (req, meta) => {
-      if (req.query.fail) throw new Error('unexpected behavior!');
-      return 'Success!';
-    }
-
-    const protectedAsyncHandler = await protect(asyncHandler);
-
-    const requests = http.server();
-    requests.route('GET', '/*', protectedAsyncHandler)
-    await requests.listen();
-
-    const first = await fetch(`http://0.0.0.0:${requests.port()}?fail=true`);
-    const second = await fetch(`http://0.0.0.0:${requests.port()}`);
-    assert.deepEqual(await first.text(), 'Not Found');
-    assert.deepEqual(await second.text(), 'Success!');
-    await requests.close();
-  } catch (e) {
-    return e;
-  }
-}
-
-async function staticFileTest() {
-  const description = `Static files can be served
-  from a given directory`;
-
-  try {
-    const requests = http.server();
-    requests.route('GET', '/*', staticFiles(__dirname + '/static'));
-    requests.route('GET', '/*', () => 404);
-    await requests.listen();
-
-    const first = await fetch(`http://0.0.0.0:${requests.port()}/index.html`);
-    const second = await fetch(`http://0.0.0.0:${requests.port()}/fake.html`);
-    assert.deepEqual(await first.text(), '<h1>Hello World!</h1>');
-    assert.deepEqual(await second.text(), 'Not Found');
     await requests.close();
   } catch (e) {
     return e;
