@@ -91,4 +91,6 @@ requests.listen(5000);
 Stop listening for requests with `requests.close()`.
 
 ### Ports
-Specify which networking port to listen over with `requests.listen()`
+Specify which networking port to listen over with `requests.listen()`. If no `port` argument is provided, a random available port will be chosen.
+
+Once listening, `requests.port()` will return the active port.
