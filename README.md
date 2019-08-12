@@ -86,3 +86,9 @@ requests.route(POST, '/secrets', handlers.denyAccess);
 requests.route(GET, '/sad/story', handlers.emote);
 requests.listen(5000);
 ```
+
+## Stopping Service
+Stop listening for requests with `requests.close()`.
+
+### Ports
+Specify which networking port to listen over with `requests.listen()`
