@@ -4,6 +4,7 @@ import * as http  from './http';
 const { GET, POST } = http.methods;
 import * as fetch from 'node-fetch';
 import { protect } from './handlers';
+import { staticFiles } from './static';
 
 export const tests = [
   portZeroTest,
@@ -21,6 +22,7 @@ export const tests = [
   asyncHandlerTest,
   nullBodyTest,
   handlerOnErrorTest,
+  staticFileTest,
 ];
 
 async function portZeroTest() {
@@ -414,10 +416,30 @@ async function handlerOnErrorTest() {
     requests.route('GET', '/*', protectedAsyncHandler)
     await requests.listen();
 
-    const firstResponse = await fetch(`http://0.0.0.0:${requests.port()}?fail=true`);
-    const secondResponse = await fetch(`http://0.0.0.0:${requests.port()}`);
-    assert.deepEqual(await firstResponse.text(), 'Not Found');
-    assert.deepEqual(await secondResponse.text(), 'Success!');
+    const first = await fetch(`http://0.0.0.0:${requests.port()}?fail=true`);
+    const second = await fetch(`http://0.0.0.0:${requests.port()}`);
+    assert.deepEqual(await first.text(), 'Not Found');
+    assert.deepEqual(await second.text(), 'Success!');
+    await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
+
+async function staticFileTest() {
+  const description = `Static files can be served
+  from a given directory`;
+
+  try {
+    const requests = http.server();
+    requests.route('GET', '/*', staticFiles(__dirname + '/static'));
+    requests.route('GET', '/*', () => 404);
+    await requests.listen();
+
+    const first = await fetch(`http://0.0.0.0:${requests.port()}/index.html`);
+    const second = await fetch(`http://0.0.0.0:${requests.port()}/fake.html`);
+    assert.deepEqual(await first.text(), '<h1>Hello World!</h1>');
+    assert.deepEqual(await second.text(), 'Not Found');
     await requests.close();
   } catch (e) {
     return e;
