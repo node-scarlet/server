@@ -155,6 +155,9 @@ function responseShorthand(response:any):HttpResponse {
       body: statusMessages[response]
     }
   }
+  else if (response instanceof Readable) {
+    return { status: 200, body: response }
+  }
   else if (typeof response == 'object' && !(response instanceof HttpResponse)) {
     return {
       status: 200,

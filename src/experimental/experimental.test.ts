@@ -77,6 +77,7 @@ async function streamResponseTest() {
     await requests.listen();
 
     const first = await fetch(`http://0.0.0.0:${requests.port()}`);
+    assert(first.ok);
     assert.deepEqual(await first.text(), '<h1>Hello World!</h1>');
     await requests.close();
   } catch (e) {
