@@ -12,8 +12,6 @@ export const staticFiles = path => {
   return async req => {
     const filepath = join(resolve(path), req.url);
     if (!await asyncExists(filepath)) return;
-    return http.response({
-      body: createReadStream(filepath),
-    })
+    return http.response({ body: createReadStream(filepath) });
   }
 }
