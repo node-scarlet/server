@@ -46,7 +46,7 @@ const denyAccess = (req, meta) => {
 ### Handler Arguments
 #### `req`
 The `req` argument is short for **"request"**, and has the following properties:
-* `method`: The http verb (GET, POST, etc..)that the request was made with.
+* `method`: The http verb (GET, POST, etc..) that the request was made with.
 * `headers`: An object containing header names, and their corresponding values.
 * `url`: The full url pathname starting after the domain, E.G: `"/products/hats?id=45&limit=1"`.
 * `params`: An object representation of dynamic url segments. A request matching the url. pattern `"/products/:type"`, might have a `params` value of `{ type: "hats" }`, or `{ type: "watches" }`.

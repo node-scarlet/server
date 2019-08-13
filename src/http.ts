@@ -2,6 +2,7 @@ import * as http from 'http';
 import * as qs from 'querystring';
 import * as UrlPattern from 'url-pattern';
 import { promisify } from 'util';
+import { Readable } from 'stream';
 
 export const server = () => new HttpServer();
 export const response = (options:any={}) => new HttpResponse(options);
@@ -29,7 +30,7 @@ class HttpServer {
 }
 /**
  * Create an Http Server and start listening for requests
- * Bound as a method to  `HttpServer`
+ * Bound as a method to `HttpServer`
  */
 function listen(port:number=0) {
   this._server = http.createServer(async (req:http.IncomingMessage, res:http.ServerResponse) => {
@@ -52,7 +53,7 @@ function listen(port:number=0) {
         body = Object.assign({}, qs.decode(body));
       }
 
-      // Adapt response
+      // Adapt request
       const meta = {};
       const request:any = {
         url,
@@ -74,6 +75,9 @@ function listen(port:number=0) {
           request.params = match;
           const response = await m.handler(request, meta);
           if (response) {
+            if (response.body instanceof Readable) {
+              return adaptResponse(response, res);
+            }
             const adaptable = responseShorthand(response);
             return adaptResponse(adaptable, res);
           }
@@ -109,11 +113,13 @@ function adaptResponse(
   output:http.ServerResponse
 ) {
   const { status, headers, body } = input;
-  output.writeHead(status, {
-    'Content-Length': Buffer.byteLength(body),
-    ...headers,
-  })
-  output.end(body);
+  if (!(body instanceof Readable)) headers['Content-Length'] = Buffer.byteLength(body);
+  output.writeHead(status, { ...headers })
+  if (body instanceof Readable) {
+    body.pipe(output);
+  } else {
+    output.end(body);
+  }
 }
 /**
  * Get stringified request body asyncronously
@@ -181,7 +187,7 @@ function route(method, urlpattern, handler) {
 class HttpResponse {
   status?: number;
   headers?: object;
-  body?: string;
+  body?: string | Readable;
   constructor(options) {
     const { status, headers, body } = options;
     this.status = status ? status : 200;

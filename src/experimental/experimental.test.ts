@@ -4,10 +4,12 @@ const { GET } = http.methods;
 import * as fetch from 'node-fetch';
 import { protect } from './protect';
 import { staticFiles } from './static';
+import { createReadStream } from 'fs';
 
 export const tests = [
   handlerOnErrorTest,
   staticFileTest,
+  streamResponseTest,
 ];
 
 async function handlerOnErrorTest() {
@@ -50,6 +52,32 @@ async function staticFileTest() {
     const second = await fetch(`http://0.0.0.0:${requests.port()}/fake.html`);
     assert.deepEqual(await first.text(), '<h1>Hello World!</h1>');
     assert.deepEqual(await second.text(), 'Not Found');
+    await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
+
+async function streamResponseTest() {
+  const description = `Stream objects should be
+  acceptable response body material`;
+
+  try {
+
+    const streamFile = (req, meta) => {
+      return http.response({
+        status: 200,
+        headers: {},
+        body: createReadStream(__dirname + '/static/index.html'),
+      })
+    }
+
+    const requests = http.server();
+    requests.route(GET, '/*', streamFile);
+    await requests.listen();
+
+    const first = await fetch(`http://0.0.0.0:${requests.port()}`);
+    assert.deepEqual(await first.text(), '<h1>Hello World!</h1>');
     await requests.close();
   } catch (e) {
     return e;

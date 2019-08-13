@@ -61,7 +61,6 @@ async function defaultHeadersTest() {
     const { length } = Object.keys(res.headers.raw());
     assert.equal(length, 3);
     assert.ok(res.headers.get('date'));
-    assert.ok(res.headers.get('content-length'));
     assert.equal(res.headers.get('connection'), 'close');
     await requests.close();
 
