@@ -75,9 +75,6 @@ function listen(port:number=0) {
           request.params = match;
           const response = await m.handler(request, meta);
           if (response) {
-            if (response.body instanceof Readable) {
-              return adaptResponse(response, res);
-            }
             const adaptable = responseShorthand(response);
             return adaptResponse(adaptable, res);
           }
