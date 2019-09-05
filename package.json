@@ -1,7 +1,7 @@
 {
   "name": "@node-scarlet/http",
   "version": "0.10.1",
-  "description": "Intuitive webserver built for rapid development",
+  "description": "Build APIs Instantly 🏋️‍♂️",
   "main": "dist/http.js",
   "scripts": {
     "prepublish": "npm run build",

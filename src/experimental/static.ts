@@ -1,4 +1,3 @@
-import * as http from '../http';
 import { resolve, join } from 'path'
 import { promisify } from 'util';
 import { createReadStream, exists } from 'fs';
