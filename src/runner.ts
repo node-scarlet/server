@@ -3,7 +3,6 @@ import { performance } from 'perf_hooks';
 // Console Colors
 const red = '\x1b[31m';
 const green = '\x1b[32m'
-const yellow = '\x1b[43m';
 const reset = '\x1b[0m';
 
 // Return errors instead of throwing
