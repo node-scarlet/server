@@ -2,12 +2,20 @@ import { performance } from 'perf_hooks';
 
 // Console Colors
 const red = '\x1b[31m';
-const green = '\x1b[32m';
+const green = '\x1b[32m'
+const yellow = '\x1b[43m';
 const reset = '\x1b[0m';
+
+// Return errors instead of throwing
+async function withoutThrowing(fn) {
+  return new Promise((resolve) => {
+    resolve(fn())
+  }).catch(error => error)
+}
 
 async function runWithTimer(fn) {
   const startTime = performance.now()
-  const result = await fn();
+  const result = await withoutThrowing(fn);
   const endTime = performance.now();
   const runTime = (endTime - startTime).toFixed(2);
   if (result instanceof Error) {
