@@ -1,3 +1,7 @@
+/**
+ * A lightweight test runner
+ */
+
 import { performance } from 'perf_hooks';
 
 // Console Colors
@@ -33,6 +37,7 @@ export function testSuite(...modules) {
   }, [])
 }
 
+// A "test" is any function that throws an error to indicate failure
 export async function run(tests) {
   runWithTimer(async function testSuite() {
     for (const test of tests) {
