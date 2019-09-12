@@ -1,8 +1,6 @@
-import { includeTests, run } from './runner'
+import { testSuite, run } from './runner'
 
-const testSuite = includeTests(
+run(testSuite(
   require('./http.test'),
   require('./experimental/experimental.test'),
-)
-
-run(testSuite)
+))

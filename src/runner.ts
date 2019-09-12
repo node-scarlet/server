@@ -26,7 +26,7 @@ async function runWithTimer(fn) {
   }
 }
 
-export function includeTests(...modules) {
+export function testSuite(...modules) {
   return modules.reduce((included, m) => {
     return [...included, ...m.tests]
   }, [])
