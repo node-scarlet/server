@@ -17,15 +17,16 @@ async function runWithTimer(fn) {
   const result = await withoutThrowing(fn);
   const endTime = performance.now();
   const runTime = (endTime - startTime).toFixed(2);
+
   if (result instanceof Error) {
     console.error(`${fn.name}: ${runTime} ms ${red}fail${reset}`, '\n', result, '\n')
     process.exit(1)
   }
-  else {
-    console.log(`${fn.name}: ${runTime} ms ${green}ok${reset}`); 
-  }
+  else
+  console.log(`${fn.name}: ${runTime} ms ${green}ok${reset}`); 
 }
 
+// Extract test functions from a list of modules
 export function testSuite(...modules) {
   return modules.reduce((included, m) => {
     return [...included, ...m.tests]
