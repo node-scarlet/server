@@ -19,7 +19,7 @@ async function runWithTimer(fn) {
   const runTime = (endTime - startTime).toFixed(2);
 
   if (result instanceof Error) {
-    console.error(`${fn.name}: ${runTime} ms ${red}fail${reset}`, '\n', result, '\n')
+    console.error(`${fn.name || 'anonymous'}: ${runTime} ms ${red}fail${reset}`, '\n', result, '\n')
     process.exit(1)
   }
   else
