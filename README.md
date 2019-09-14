@@ -103,9 +103,7 @@ In a production environment, Node should rely on a reverse-proxy like Nginx to s
 Assuming the static file directory is called "public":
 ```JS
 const { resolve, join } = require('path');
-const { promisify } = require('util');
-const { readFile } = require('fs');
-const asyncReadFile = promisify(readFile);
+const { createReadStream } = require('fs');
 
 /**
  * Create a handler that will attempt to serve static files
@@ -114,11 +112,11 @@ const asyncReadFile = promisify(readFile);
  * USAGE:
  * requests.route(GET, '/*', staticFiles(__dirname + "public"));
  */
-const staticFiles = path => {
-  return async (req, meta) => {
+export const staticFiles = path => {
+  return async req => {
     const filepath = join(resolve(path), req.url);
-    return await asyncReadFile(filepath, 'utf8')
-      .catch(e => undefined);
+    if (filepath[filepath.length-1] != '/')
+    return createReadStream(filepath);
   }
 }
 ```
