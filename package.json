@@ -1,6 +1,6 @@
 {
   "name": "@node-scarlet/http",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "Build APIs Instantly 🏋️‍♂️",
   "main": "dist/http.js",
   "scripts": {
