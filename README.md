@@ -5,7 +5,7 @@ Serve [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages) in seco
 The *almost* 👏 simplest possible example:
 Run the program, and visit `localhost:5000` in your browser to see things in action!
 
-```JS
+```javascript
 const http = require('@node-scarlet/http');
 const { GET, POST } = http.methods;
 
@@ -27,7 +27,7 @@ Request handler functions use `req` and `meta` to determine how to react to inco
 * For simple responses, you can use a `string` or `object` as a return type
 * Use `http.response()` to have richer control over the [status](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status), [headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers), and [body](https://en.wikipedia.org/wiki/HTTP_message_body).
 
-```JS
+```javascript
 // handlers.js
 
 // string/object shorthand
@@ -55,7 +55,7 @@ The `req` argument is short for **"request"**, and has the following properties:
 #### `meta`
 `meta` starts off as an empty object, but is intended to be populated with arbitary data that can be used by other handlers. Some handler won't return a response, but instead set properties of `meta` to be used by downstream handlers. One such example might be a handler that authenticates a requester's identity, and stores their account data on `meta`.
 
-```JS
+```javascript
 // handlers.js
 const attachMeta = (req, meta) => {
   meta.desire = req.query.emotion || 'love';
@@ -74,7 +74,7 @@ const emote = (req, meta) => {
 ## Tying things together
 For organization, you'll typically want to define your request handlers in their own module instead of inline.
 
-```JS
+```javascript
 const http = require('@node-scarlet/http');
 const { GET, POST } = http.methods;
 const handlers = require('./handlers');
@@ -101,7 +101,7 @@ Once listening, `requests.port()` will return the active port.
 In a production environment, Node should rely on a reverse-proxy like Nginx to serve static files, but for small projects or development environments, you can use something like the following.
 
 Assuming the static file directory is called "public":
-```JS
+```javascript
 const { resolve, join } = require('path');
 const { createReadStream } = require('fs');
 
