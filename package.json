@@ -1,6 +1,6 @@
 {
-  "name": "@node-scarlet/http",
-  "version": "0.10.4",
+  "name": "@scarlet/http",
+  "version": "0.0.1",
   "description": "Build APIs Instantly 🏋️‍♂️",
   "main": "dist/http.js",
   "scripts": {
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/node-scarlet/http.git"
+    "url": "git+https://github.com/scarlet/http.git"
   },
   "keywords": [
     "scarlet",

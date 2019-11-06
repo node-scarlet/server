@@ -19,6 +19,7 @@ export const tests = [
   partialMatchTest,
   asyncHandlerTest,
   nullBodyTest,
+  allMethodTest,
 ];
 
 async function portZeroTest() {
@@ -389,6 +390,32 @@ async function nullBodyTest() {
 
     const response = await fetch(`http://0.0.0.0:${requests.port()}`);
     assert.deepEqual(await response.json(), null);
+    await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
+
+async function allMethodTest() {
+  const description = `The "ALL" route method will apply middleware 
+  to all available HTTP methods`;
+
+  try {
+    const requests = http.server();
+    requests.route('ALL', '/*', async (req, meta) => 'good');
+    await requests.listen();
+
+    // GET
+    const getResponse = await fetch(`http://0.0.0.0:${requests.port()}`);
+    assert.equal(await getResponse.text(), 'good');
+
+    // POST
+    const postResponse = await fetch(
+      `http://0.0.0.0:${requests.port()}`,
+      { method: 'POST' }
+    );
+    assert.equal(await postResponse.text(), 'good');
+
     await requests.close();
   } catch (e) {
     return e;

@@ -80,6 +80,7 @@ function listen(port:number=0) {
           }
         }
       }
+
       // Not Found
       const notFoundResponse = response({ status: 404 })
       adaptResponse(notFoundResponse, res);
@@ -181,8 +182,21 @@ class Middleware {
 }
 function route(method, urlpattern, handler) {
   method = method.toUpperCase();
-  if (!methods[method]) throw new Error(`Unsupported verb "${method}".`);
-  this.middlewares[method].push(new Middleware(method, urlpattern, handler));
+  if (!methods[method] && method !== 'ALL') {
+    throw new Error(`Unsupported verb "${method}".`);
+  }
+  // "ALL" is just sugar for applying the same middleware to every route
+  if (method == 'ALL') {
+    for (const verb of Object.keys(methods)) {
+      const newMiddleware = new Middleware(verb, urlpattern, handler);
+      this.middlewares[verb].push(newMiddleware);
+    }
+  }
+  // Put the middleware on its corresponding method stack
+  else {
+    const newMiddleware = new Middleware(method, urlpattern, handler);
+    this.middlewares[method].push(newMiddleware);
+  }
 }
 class HttpResponse {
   status?: number;
