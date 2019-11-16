@@ -110,14 +110,21 @@ function adaptResponse(
   input:HttpResponse,
   output:http.ServerResponse
 ) {
-  const { status, headers, body } = input;
-  if (!(body instanceof Readable)) headers['Content-Length'] = Buffer.byteLength(body);
-  output.writeHead(status, { ...headers })
+  let { status, headers, body } = input;
+
   if (body instanceof Readable) {
+    output.writeHead(status, { ...headers })
     body.pipe(output);
-  } else {
-    output.end(body);
+    return;
   }
+
+  if (typeof body == 'object') {
+    body = JSON.stringify(body);
+  }
+
+  headers['Content-Length'] = Buffer.byteLength(body);
+  output.writeHead(status, { ...headers })
+  output.end(body);
 }
 /**
  * Get stringified request body asyncronously

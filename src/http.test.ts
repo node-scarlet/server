@@ -20,6 +20,7 @@ export const tests = [
   asyncHandlerTest,
   nullBodyTest,
   allMethodTest,
+  responseBodyObjectTest,
 ];
 
 async function portZeroTest() {
@@ -158,7 +159,7 @@ async function requestBodyParserURLencodedTest() {
 }
 
 async function requestBodyParserJsonTest() {
-  const description = `JSON encoded body content
+  const description = `JSON encoded request body content
   will be parsed into an object`;
 
   try {
@@ -415,6 +416,27 @@ async function allMethodTest() {
       { method: 'POST' }
     );
     assert.equal(await postResponse.text(), 'good');
+
+    await requests.close();
+  } catch (e) {
+    return e;
+  }
+}
+
+async function responseBodyObjectTest() {
+  const description = `Response body properties will be JSON stringified
+  if they are objects, and not instances of Readable`;
+
+  try {
+    const requests = http.server();
+    requests.route('ALL', '/*', async (req, meta) => http.response({
+      body: { success: true }
+    }));
+
+    await requests.listen();
+
+    const response = await fetch(`http://0.0.0.0:${requests.port()}`);
+    assert.deepEqual(await response.json(), { success: true });
 
     await requests.close();
   } catch (e) {
