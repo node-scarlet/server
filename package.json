@@ -29,7 +29,7 @@
   "devDependencies": {
     "typescript": "^3.5.3",
     "@types/node": "^12.6.8",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "nodemon": "^1.19.1"
   },
   "dependencies": {
